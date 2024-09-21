@@ -1,11 +1,12 @@
 import AuthStack from './auth'
-import MainStack from './main'
+import AppStack from './app'
 import { useAuthStore } from '../store/auth'
 
 
 export default function Navigation() {
-  const user = useAuthStore.getState().user
+  const { user } = useAuthStore()
+  console.log(user)
   
   if(!user) return <AuthStack />
-  return <MainStack />
+  return <AppStack />
 }

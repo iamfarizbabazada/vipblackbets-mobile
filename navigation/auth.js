@@ -12,11 +12,11 @@ const Stack = createStackNavigator();
 export default function AuthStack ()  {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Onboarding">
-        <Stack.Screen name="Onboarding" options={{headerShown: false}} component={Onboarding} />
+      <Stack.Navigator initialRouteName="Onboarding" screenOptions={{headerShown: false}}>
+        <Stack.Screen name="Onboarding" component={Onboarding} />
         <Stack.Screen name="Login" options={{headerTitle: 'Daxil ol'}} component={Login} />
         <Stack.Screen name="Register" options={{headerTitle: 'Qeydiyyat'}} component={Register} />
-        <Stack.Screen name="RegisterVerify" options={{headerTitle: 'A'}} component={RegisterVerify} />
+        <Stack.Screen name="RegisterVerify" component={RegisterVerify} />
       </Stack.Navigator>
     </NavigationContainer>
   );
