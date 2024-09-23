@@ -1,4 +1,4 @@
-import { View, Image, StyleSheet, Alert } from 'react-native'
+import { View, Image, StyleSheet, Alert, Platform } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { Text, useTheme} from 'react-native-paper'
 import { Button } from '../../components/button'
@@ -10,27 +10,96 @@ import coverImage from '../../assets/images/login.jpg'
 import { useAuthStore } from '../../store/auth'
 import { useState } from 'react'
 
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import api from '../../lib/api'
+
 const validationSchema = Yup.object({
   email: Yup.string().email().required(),
   password: Yup.string().min(8).required()
 })
+
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+  }),
+});
+
+async function registerForPushNotificationsAsync() {
+  let token;
+  if (Device.isDevice) {
+      const { status: existingStatus, ios } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      console.log('exitis', existingStatus);
+
+      
+
+      if (existingStatus !== 'granted' || ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL) {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+          console.log(status);
+      }
+      // if (finalStatus !== 'granted') {
+      //     alert(
+      //         'Bildirişlər üçün icazə alına bilinmədi.Sifariş qəbul eləmək üçün Kloun.az proqramının parametrlər hissəsində Notifications bölməsinini aktiv edin!',
+      //     );
+      //     return;
+      // }
+      token = (await Notifications.getExpoPushTokenAsync({
+        projectId: "0a2c7c46-156b-4945-b177-a5fc3c9edb6c"
+      })).data;
+      console.log(token);
+  } else {
+      alert('Must use physical device for Push Notifications');
+  }
+
+  if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+          name: 'default',
+          importance: Notifications.AndroidImportance.HIGH,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+          sound: 'default',
+      });
+  }
+
+  return token;
+}
 
 export default function Login() {
   const navigation = useNavigation()
   const theme = useTheme()
   const { login } = useAuthStore()
   const [err, setErr] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  const uploadToken = async () => {
+    const token = await registerForPushNotificationsAsync();
+    if (!token) {
+        return Alert.alert(
+            'Bildirişlər üçün icazə alına bilinmədi.Sifariş qəbul eləmək üçün Kloun.az proqramının parametrlər hissəsində Notifications bölməsinini aktiv edin!',
+        );
+    }
+
+    await api.post('/profile/notifications', { token })
+  }
   
   const formik = useFormik({
     validationSchema: validationSchema,
     onSubmit: async (values) => {
+      setLoading(true)
       try {
         await login(values)
+        await uploadToken()
         navigation.navigate('Home')
       } catch(err) {
         if(err.response?.data?.action == 'VERIFICATION') return navigation.navigate('RegisterVerify', {email: values.email})
         setErr(err.response?.data?.message)
       }
+      setLoading(false)
     },
     initialValues: {
       email: '',
@@ -54,7 +123,7 @@ export default function Login() {
           <Text style={{color: theme.colors.primary}} variant='bodySmall' onPress={() => navigation.navigate('Onboarding')}>Şifrəni unutdun?</Text>
         </View>
 
-        <Button mode='contained' onPress={formik.handleSubmit}>
+        <Button mode='contained' loading={loading} onPress={formik.handleSubmit}>
           Daxil ol
         </Button>
 

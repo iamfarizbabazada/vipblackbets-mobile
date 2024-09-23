@@ -43,7 +43,7 @@ export default function Onboarding() {
 
   const renderDots = useCallback(() => {
     return Array.from({ length: MAX_PAGE + 1 }).map((dot, index) => (
-      <Ionicons color={page == index ? theme.colors.primary : theme.colors.accent} name='ellipse' />
+      <Ionicons color={page == index ? theme.colors.primary : theme.colors.accent} name='ellipse' key={index} />
     ))
   }, [page])
 

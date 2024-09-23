@@ -24,16 +24,19 @@ export default function Register() {
   const theme = useTheme()
   const { register } = useAuthStore()
   const [err, setErr] = useState(null)
+  const [loading, setLoading] = useState(false)
   
   const formik = useFormik({
     validationSchema: validationSchema,
     onSubmit: async (values) => {
+      setLoading(true)
       try {
         await register(values)
         navigation.navigate('RegisterVerify', {email: values.email})
       } catch(err) {
         setErr(err.response?.data?.message)
       }
+      setLoading(false)
     },
     initialValues: {
       name: '',
@@ -71,7 +74,7 @@ export default function Register() {
 
         </View>
 
-        <Button mode='contained' onPress={formik.handleSubmit}>
+        <Button mode='contained' loading={loading} onPress={formik.handleSubmit}>
           Qeydiyyatdan Keç
         </Button>
 

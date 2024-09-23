@@ -1,16 +1,25 @@
 import { create } from "zustand";
 import api from '../lib/api'
 
-export const useAuthStore = create((set) => ({
+export const useAuthStore = create((set, get) => ({
   user: null,
   fetchUser: async () => {
-      const res = await api.get('/profile')
-      set({user: res.data})
+      try {
+        const res = await api.get('/profile')
+        set({user: res.data})
+      } catch(err) {
+        set({user: null})
+        console.error(err)
+      }
     },
     login: async (userData) => {
-      const res = await api.post('/auth/login', userData)
-      console.log(res.data)
-      set({user: res.data})
+      try {
+        const res = await api.post('/auth/login', userData)
+        console.log(res.data)
+        set({user: res.data})
+      } catch(err) {
+        throw err
+      }
   },
   register: async (userData) => {
         await api.post('/auth/register', {
@@ -31,4 +40,8 @@ export const useAuthStore = create((set) => ({
     await api.post('/auth/logout')
     set({user: null})
   },
+  delete: async () => {
+    await api.delete('/profile')
+    set({user: null})
+  }
 }))

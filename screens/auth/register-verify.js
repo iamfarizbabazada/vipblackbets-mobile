@@ -22,16 +22,19 @@ export default function RegisterVerify() {
   const theme = useTheme()
   const { verify, resetOtp } = useAuthStore()
   const [err, setErr] = useState(null)
+  const [loading, setLoading] = useState(false)
   
   const formik = useFormik({
     validationSchema: validationSchema,
     onSubmit: async (values) => {
+      setLoading(true)
       try {
         await verify(values)
         navigation.navigate('Login')
       } catch(err) {
         setErr(err.response?.data?.message)
       }
+      setLoading(false)
     },
     initialValues: {
       otp: '',
@@ -76,7 +79,7 @@ export default function RegisterVerify() {
           <Button mode='text' onPress={resendOtp}>
           Yenidən göndər
           </Button>
-          <Button mode='contained' onPress={formik.handleSubmit}>
+          <Button mode='contained' loading={loading} onPress={formik.handleSubmit}>
             Təsdiqlə
           </Button>
         </View>

@@ -5,9 +5,19 @@ import { Button } from '../components/button'
 import { Input, Password } from '../components/input'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
+import * as Notifications from 'expo-notifications';
 
 import { useAuthStore } from '../store/auth'
 import { useState } from 'react'
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+  }),
+});
+
 
 const validationSchema = Yup.object({
   name: Yup.string().required(),
@@ -47,17 +57,6 @@ export default function Register() {
   return (
       <View style={styles.container}>
         <View style={styles.actionContainer}>
-          <Button mode='contained' onPress={() => {
-           Alert.alert('sda', 'sda', [{
-            text: 'cixis',
-            onPress: logout
-           }, {
-            text: 'tytox',
-            onPress: console.log
-           }])
-          }}>
-            Fuck You
-          </Button>
         </View>
       </View>
   )
@@ -67,7 +66,6 @@ export default function Register() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#252525'
   },
   image: {
     width: '100%',

@@ -11,7 +11,7 @@ const theme = {
   ...MD3DarkTheme,
   colors: {
     ...MD3DarkTheme.colors,
-    primary: '#B8860B', 
+    primary: '#B8860B',
     onPrimary: '#252525',
     description: "#71727A",
     accent: '#7B5506', 
