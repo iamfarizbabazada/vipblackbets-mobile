@@ -25,6 +25,7 @@ export default function OrderCreate() {
   const [page, setPage] = useState(0)
   const MAX_PAGE = 3
   const [loading, setLoading] = useState(false)
+  const [file, setFile] = useState(false)
 
   const formik = useFormik({
     initialValues: {
@@ -36,7 +37,30 @@ export default function OrderCreate() {
     onSubmit: async (values) => {
       setLoading(true)
       try {
-        await api.post('/orders', values)
+        const formData = new FormData()
+        
+        formData.append('provider', values.provider)
+        formData.append('paymentType', values.paymentType)
+        formData.append('amount', values.amount)
+
+        console.log(file);
+        
+        if(file) {
+          console.log('girdi')
+          const formFile = {
+            uri: file.uri,
+            type: file.mimeType,
+            name: file.name
+          }
+
+          formData.append('file', formFile)
+        }
+
+        await api.post('/orders', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
         setPage(page +1)
       } catch(err) {
         console.error(err)
@@ -63,7 +87,7 @@ export default function OrderCreate() {
       name: "Məbləğ",
       title: 'Depozit Miqdarı',
       body: 'Balansa yüklənəcək məbləği daxil edin!', 
-      form: <FormAmount form={formik} />
+      form: <FormAmount form={formik} setFile={setFile} />
     },
     {
       name: "Status",

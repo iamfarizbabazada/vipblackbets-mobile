@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "VipBlack",
+    "name": "Vipblackbets",
     "slug": "VipBlack",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -18,7 +18,11 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.besigncreativeagency.VipBlack"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -30,6 +34,11 @@
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "412dc9e3-7b42-4d7f-a472-489ca129bb1a"
+      }
+    }
   }
 }

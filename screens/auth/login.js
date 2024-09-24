@@ -49,7 +49,7 @@ async function registerForPushNotificationsAsync() {
       //     return;
       // }
       token = (await Notifications.getExpoPushTokenAsync({
-        projectId: "0a2c7c46-156b-4945-b177-a5fc3c9edb6c"
+        projectId: "412dc9e3-7b42-4d7f-a472-489ca129bb1a",
       })).data;
       console.log(token);
   } else {

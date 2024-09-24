@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaperProvider, MD3DarkTheme } from 'react-native-paper';
 import Navigation from './navigation'
@@ -28,10 +28,21 @@ const theme = {
 
 export default function App() {
   const { fetchUser } = useAuthStore()
-  
+  const [loading, setLoading] = useState(false)
+
   useEffect(() => {
+    setLoading(true)
     fetchUser()
+      .then(() => setLoading(false))
+      .catch(() => setLoading(false))
   }, [])
+
+  if(loading) return (
+    <SafeAreaView style={styles.loading}>
+      <ActivityIndicator size={80} color={theme.colors.primary} />
+      <StatusBar style='auto' />
+    </SafeAreaView>
+  )
 
   return (
     <SafeAreaView style={styles.container}>
@@ -47,4 +58,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  loading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#252525'
+  }
 });

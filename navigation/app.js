@@ -10,6 +10,8 @@ import UpdateProfile from '../screens/profile/update';
 import Security from '../screens/profile/security';
 import OrderCreate from '../screens/order/create';
 import OrderList from '../screens/order/list';
+import Support from '../screens/support';
+import Chat from '../screens/support/chat';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -74,6 +76,32 @@ function StackNavigator() {
   );
 }
 
+
+function SupportStackNavigator() {
+  const theme = useTheme();
+
+  return (
+    <Stack.Navigator initialRouteName="ProfileList" screenOptions={{ ...commonHeaderStyle(theme) }}>
+      <Stack.Screen
+        options={{
+          headerTitle: 'Canlı Dəstək',
+          ...commonHeaderStyle(theme),
+        }}
+        name="LiveSupport"
+        component={Support}
+      />
+      <Stack.Screen
+        options={{
+          headerTitle: 'BetWallet Admin',
+          ...commonHeaderStyle(theme),
+        }}
+        name="Chat"
+        component={Chat}
+      />
+    </Stack.Navigator>
+  );
+}
+
 export default function AppStack() {
   const theme = useTheme();
 
@@ -113,9 +141,9 @@ export default function AppStack() {
         />
         <Tab.Screen
           name="Support"
-          component={Profile}
+          component={SupportStackNavigator}
           options={{
-            headerTitle: 'Dəstək',
+            headerShown: false,
             tabBarLabel: 'Dəstək',
             tabBarIcon: ({ color, size }) => <Ionicons name="settings" color={color} size={size} />,
           }}

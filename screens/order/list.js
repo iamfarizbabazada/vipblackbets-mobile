@@ -61,7 +61,8 @@ export default function OrderList() {
   );
 
   return (
-    <FlatList
+    <View>
+      <FlatList
       data={orders}
       renderItem={renderItem}
       keyExtractor={item => item.id}
@@ -69,6 +70,7 @@ export default function OrderList() {
       refreshing={refreshing}
       onRefresh={fetchOrders}
     />
+    </View>
   );
 };
 
