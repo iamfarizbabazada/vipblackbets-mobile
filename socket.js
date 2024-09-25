@@ -1,15 +1,15 @@
 import io from 'socket.io-client';
-import { baseUrl } from './lib/api';
+import { baseUrl, wssUrl } from './lib/api';
 
 
-const socket = io(baseUrl, {
+const socket = io(wssUrl, {
   transports: ['websocket'],
   secure: false,
   // jsonp: false,
   reconnection: true,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 5000,
-  reconnectionAttempts: Infinity,
+  reconnectionAttempts: 10,
   autoConnect: true,
   agent: false,
   upgrade: false,

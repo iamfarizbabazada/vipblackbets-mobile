@@ -65,18 +65,18 @@ export default function Profile() {
 
   if(!user) return <View></View>
 
-  const userLabel = user.name.split(' ')
+  const userLabel = user.name?.split(' ')
 
   return (
       <View style={styles.container}>
         <View style={styles.info}>
-          {user.avatarURL ? <Avatar.Image style={{borderRadius: 45}} size={100} source={{ uri: user.avatarURL, headers: {
+          {/* {user.avatarURL ? <Avatar.Image style={{borderRadius: 45}} size={100} source={{ uri: user.avatarURL, headers: {
             method: 'POST',
             headers: {
               Pragma: 'no-cache',
             },
           } }} /> : <Avatar.Text style={{borderRadius: 45}} labelStyle={{textTransform: 'uppercase'}} size={100} label={`${userLabel[0][0]}${userLabel[1][1]}`} /> }
-          
+           */}
           <Text variant='titleLarge'>{user.name}</Text>
           <Text variant='bodySmall' style={{color: theme.colors.description}}>{user.email}</Text>
         </View>

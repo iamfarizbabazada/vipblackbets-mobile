@@ -108,7 +108,7 @@ export default function AppStack() {
   return (
     <NavigationContainer>
       <Tab.Navigator
-        initialRouteName="Profile"
+        initialRouteName="Home"
         screenOptions={{
           tabBarInactiveTintColor: '#fff',
           tabBarActiveTintColor: theme.colors.primary,
