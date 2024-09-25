@@ -1,27 +1,65 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
+import {useRoute} from '@react-navigation/native' 
 import { GiftedChat } from "react-native-gifted-chat";
 import { IconButton, useTheme } from "react-native-paper";
 import { Input as TextInput } from '../../components/input';
+import socket from '../../socket'
+import {useAuthStore} from '../../store/auth'
 
 export default function Chat() {
+  const route  = useRoute()
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
   const { colors } = useTheme();
+  const {user} = useAuthStore()
 
-  const onSend = (newMessages) => {
-    setMessages((previousMessages) => GiftedChat.append(previousMessages, newMessages));
+  const receiverId = route.params.admin?._id
+
+  useEffect(() => {
+    socket.emit('join room', receiverId);
+
+    socket.on('chat new', (newMessage) => {
+      setMessages((previousMessages) => GiftedChat.append(previousMessages, newMessage));
+    });
+
+    socket.on('messages', (chatMessages) => {
+      const formattedMessages = chatMessages.map((msg) => ({
+        _id: msg._id,
+        text: msg.text,
+        createdAt: msg.createdAt,
+        user: {
+          _id: msg.sender._id,
+          name: msg.sender.name, // Make sure to include name in your message model
+        },
+      }));
+      setMessages(formattedMessages);
+    });
+
+    socket.emit('chat history');
+
+    return () => {
+      socket.emit('leave room');
+      socket.off();
+    };
+  }, [receiverId]);
+
+  const onSend = (newMessages = []) => {
+    const message = newMessages[0];
+    socket.emit('chat message', message.text);
+    setMessages((previousMessages) => GiftedChat.append(previousMessages, message));
   };
+
 
   const renderInputToolbar = () => {
     return (
-      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+      <View style={{ flexDirection: 'row', padding: 10 }}>
         <TextInput
           mode="outlined"
           placeholder="Type your message here... 🚀⭐"
           value={text}
           onChangeText={setText}
-          style={{ flex: 1 }}
+          outlinedStyle={{ flex: 1  }}
         />
         <IconButton
           icon="send"
@@ -44,7 +82,7 @@ export default function Chat() {
       <GiftedChat
         messages={messages}
         onSend={onSend}
-        user={{ _id: 1 }}
+        user={{ _id: user?._id }}
         renderInputToolbar={renderInputToolbar}
         style={{ backgroundColor: colors.background }}
       />

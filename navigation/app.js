@@ -145,7 +145,7 @@ export default function AppStack() {
           options={{
             headerShown: false,
             tabBarLabel: 'Dəstək',
-            tabBarIcon: ({ color, size }) => <Ionicons name="settings" color={color} size={size} />,
+            tabBarIcon: ({ color, size }) => <Ionicons name="chatbox-ellipses-outline" color={color} size={size} />,
           }}
         />
       </Tab.Navigator>

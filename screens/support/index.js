@@ -1,6 +1,6 @@
 import { View, Image, StyleSheet, Alert, FlatList, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import { Checkbox, FAB, Searchbar, Text, useTheme} from 'react-native-paper'
+import { Avatar, Badge, Checkbox, FAB, Searchbar, Text, useTheme} from 'react-native-paper'
 import { Button } from '../../components/button'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
@@ -41,9 +41,36 @@ export default function Support() {
   }, [searchTerm])
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('Chat', {admin: item})} style={[styles.card, { borderWidth: .5,borderColor: theme.colors.description, flexDirection: 'row' }]}>
-      <Text>BetWallet Admin</Text>
-      <Ionicons name='chevron-forward' color={theme.colors.primary} size={20} />
+    <TouchableOpacity onPress={() => navigation.navigate('Chat', {admin: item})} style={[styles.card, { borderWidth: .5,borderColor: theme.colors.description }]}>
+      
+      <View style={{flexDirection: 'row', justifyContent: 'space-between' }}>
+      <View style={{ position: 'relative', flexDirection: 'row', gap: 10 }}>
+      <View>
+      <Avatar.Image
+        size={64}
+        source={{ uri: 'https://example.com/avatar.jpg' }} // Replace with your avatar URL
+      />
+      {item.isReaded && (
+        <Badge
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          backgroundColor: theme.colors.accent,
+          color: '#ffffff'
+        }}
+      >
+        Yeni
+      </Badge>
+      )}
+      </View>
+        <View>
+        <Text>BetWallet Admin</Text>
+        <Text style={{color: theme.colors.description}}>{item.lastMessage}</Text>
+        </View>
+    </View>
+        <Ionicons name='chevron-forward' color={theme.colors.primary} size={20} />
+      </View>
     </TouchableOpacity>
   );
 
@@ -61,7 +88,7 @@ export default function Support() {
           />
         </View>
         <FAB
-          icon="send"
+          icon={() => <Ionicons name="paper-plane" size={24} color="white" />}
           label='Telegram Dəstək'
           style={[styles.fab, {backgroundColor: theme.colors.accent}]}
           onPress={() => console.log('Pressed')}
