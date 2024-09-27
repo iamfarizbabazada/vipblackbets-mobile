@@ -42,13 +42,12 @@ export default function Support() {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => navigation.navigate('Chat', {admin: item})} style={[styles.card, { borderWidth: .5,borderColor: theme.colors.description }]}>
-      
       <View style={{flexDirection: 'row', justifyContent: 'space-between' }}>
       <View style={{ position: 'relative', flexDirection: 'row', gap: 10 }}>
       <View>
       <Avatar.Image
         size={64}
-        source={{ uri: 'https://example.com/avatar.jpg' }} // Replace with your avatar URL
+        source={{ uri: item.avatarURL}} // Replace with your avatar URL
       />
       {item.isReaded && (
         <Badge
@@ -65,11 +64,10 @@ export default function Support() {
       )}
       </View>
         <View>
-        <Text>BetWallet Admin</Text>
+        <Text style={{textTransform: 'capitalize'}}>{item.name}</Text>
         <Text style={{color: theme.colors.description}}>{item.lastMessage}</Text>
         </View>
     </View>
-        <Ionicons name='chevron-forward' color={theme.colors.primary} size={20} />
       </View>
     </TouchableOpacity>
   );

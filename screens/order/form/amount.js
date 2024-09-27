@@ -34,6 +34,7 @@ export default function FormAmount({form, setFile}) {
       const result = await DocumentPicker.getDocumentAsync({
         type: ['image/*', 'application/pdf'], // Allow images and PDFs
         copyToCacheDirectory: true, // Copy file to cache directory
+        multiple: false
       });
       
 

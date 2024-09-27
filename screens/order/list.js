@@ -61,7 +61,7 @@ export default function OrderList() {
   );
 
   return (
-    <View>
+    <View style={{backgroundColor: '#252525', flex: 1}}>
       <FlatList
       data={orders}
       renderItem={renderItem}
