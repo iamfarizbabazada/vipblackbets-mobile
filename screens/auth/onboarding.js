@@ -4,6 +4,7 @@ import { Text, useTheme } from 'react-native-paper'
 import { Button } from '../../components/button'
 import { Ionicons } from '@expo/vector-icons'
 import { useCallback, useState } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import image1 from '../../assets/images/onboard/1.jpg'
 import image2 from '../../assets/images/onboard/2.jpg'
@@ -33,11 +34,21 @@ export default function Onboarding() {
     },
   ]
 
+  const completeOnboarding = async () => {
+    try {
+      await AsyncStorage.setItem('hasCompletedOnboarding', 'true');
+      setShowOnboarding(false);
+    } catch (error) {
+      console.error('Error setting onboarding status:', error);
+    }
+  };
+
   const goToNextPage = () => {
     if(page < MAX_PAGE) {
       setPage(page + 1)
     } else {
-      navigation.navigate('Register')
+      completeOnboarding()
+      navigation.navigate('Login')
     }
   }
 

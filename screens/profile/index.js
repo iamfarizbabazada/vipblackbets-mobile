@@ -43,7 +43,7 @@ export default function Profile() {
     },
     {
       name: 'Bildirişlər',
-      to: 'Home'
+      to: 'NotificationList'
     },
     {
       name: 'Təhlükəsizlik',
@@ -51,11 +51,11 @@ export default function Profile() {
     },
     {
       name: 'Şərtlər & Qaydalar',
-      to: 'Home'
+      to: 'Terms'
     },
     {
       name: 'Gizlilik Siyasəti',
-      to: 'Home'
+      to: 'Terms'
     },
   ]
 

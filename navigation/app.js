@@ -1,17 +1,21 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useTheme } from 'react-native-paper';
+import { IconButton, Text, useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 
 import Home from '../screens/home';
 import Profile from '../screens/profile';
 import UpdateProfile from '../screens/profile/update';
 import Security from '../screens/profile/security';
+import NotificationList from '../screens/profile/notifications';
 import OrderCreate from '../screens/order/create';
 import OrderList from '../screens/order/list';
 import Support from '../screens/support';
 import Chat from '../screens/support/chat';
+import { Button } from '../components/button';
+import { TouchableOpacity } from 'react-native';
+import TermsAndConditions from '../screens/terms';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -31,20 +35,26 @@ function StackNavigator() {
   const theme = useTheme();
 
   return (
-    <Stack.Navigator initialRouteName="ProfileList" screenOptions={{ ...commonHeaderStyle(theme) }}>
+    <Stack.Navigator initialRouteName="ProfileList" screenOptions={{ ...commonHeaderStyle(theme),   headerLeftLabelVisible: true,
+      headerLeftContainerStyle: {
+        paddingLeft: 10
+      },
+      headerLeft: (props) => <IconButton {...props} icon={() => <Ionicons name='chevron-back' size={24} color={theme.colors.primary} />} size={24} />}}>
       <Stack.Screen
         options={{
           headerTitle: 'Hesab',
           ...commonHeaderStyle(theme),
+          headerLeftLabelVisible: false,
+          headerLeft: false
         }}
         name="ProfileList"
         component={Profile}
-      />
+        />
       <Stack.Screen
         options={{
           headerTitle: 'Hesab Məlumatları',
           ...commonHeaderStyle(theme),
-        }}
+         }}
         name="UpdateProfile"
         component={UpdateProfile}
       />
@@ -60,6 +70,7 @@ function StackNavigator() {
         options={{
           headerTitle: 'Depozit Yüklə',
           ...commonHeaderStyle(theme),
+          headerLeft: (props) => <TouchableOpacity {...props}><Text style={{color: theme.colors.primary}}>Ləğv et</Text></TouchableOpacity>
         }}
         name="OrderCreate"
         component={OrderCreate}
@@ -71,6 +82,18 @@ function StackNavigator() {
         }}
         name="OrderList"
         component={OrderList}
+      />
+      <Stack.Screen
+        options={{
+          headerTitle: 'Bildirişlər',
+          ...commonHeaderStyle(theme),
+        }}
+        name="NotificationList"
+        component={NotificationList}
+      />
+      <Stack.Screen
+        name="Terms"
+        component={TermsAndConditions}
       />
     </Stack.Navigator>
   );

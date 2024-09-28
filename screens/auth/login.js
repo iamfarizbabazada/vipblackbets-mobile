@@ -89,11 +89,12 @@ export default function Login() {
   
   const formik = useFormik({
     validationSchema: validationSchema,
-    onSubmit: async (values) => {
+    onSubmit: async (values, {resetForm}) => {
       setLoading(true)
       try {
         await login(values)
         await uploadToken()
+        resetForm()
         navigation.navigate('Home')
       } catch(err) {
         if(err.response?.data?.action == 'VERIFICATION') return navigation.navigate('RegisterVerify', {email: values.email})
@@ -120,7 +121,7 @@ export default function Login() {
           <Input error={formik.errors.email} keyboardType='email-address' label="E-poçt ünvanı" value={formik.values.email} onChangeText={formik.handleChange('email')} />
           <Password error={formik.errors.password} label="Şifrə" value={formik.values.password} onChangeText={formik.handleChange('password')} />
 
-          <Text style={{color: theme.colors.primary}} variant='bodySmall' onPress={() => navigation.navigate('Onboarding')}>Şifrəni unutdun?</Text>
+          <Text style={{color: theme.colors.primary}} variant='bodySmall' onPress={() => navigation.navigate('ForgetPassword')}>Şifrəni unutdun?</Text>
         </View>
 
         <Button mode='contained' loading={loading} onPress={formik.handleSubmit}>

@@ -1,4 +1,4 @@
-import { View, Image, StyleSheet, Alert } from 'react-native'
+import { View, Image, StyleSheet, Alert, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { Checkbox, Text, useTheme} from 'react-native-paper'
 import { Button } from '../../components/button'
@@ -67,9 +67,12 @@ export default function Register() {
 
           <View style={{flexDirection: 'row', width: '90%'}}>
             <Checkbox status={formik.values.check ? 'checked' : 'unchecked'} onPress={() => formik.setFieldValue('check', !formik.values.check, true)} />
+            <TouchableOpacity onPress={() => navigation.navigate('Terms')}>
             <Text>
-            Qeydiyyatdan keçərək, Şərtlər & Qaydalar və Gizlilik Siyasəti ilə razılaşdığımı bildirirəm.
+            Qeydiyyatdan keçərək,
+            <Text style={{color: theme.colors.primary}}> Şərtlər & Qaydalar və Gizlilik Siyasəti ilə razılaşdığımı bildirirəm. </Text>
             </Text>
+            </TouchableOpacity>
           </View>
 
         </View>

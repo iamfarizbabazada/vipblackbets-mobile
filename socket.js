@@ -2,7 +2,7 @@ import io from 'socket.io-client';
 import { baseUrl, wssUrl } from './lib/api';
 
 
-const socket = io(baseUrl, {
+const socket = io(wssUrl, {
   transports: ['websocket'],
   secure: false,
   // jsonp: false,
