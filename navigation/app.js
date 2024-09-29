@@ -16,6 +16,7 @@ import Chat from '../screens/support/chat';
 import { Button } from '../components/button';
 import { TouchableOpacity } from 'react-native';
 import TermsAndConditions from '../screens/terms';
+import MatchDetail from '../screens/fixtures';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -100,6 +101,23 @@ function StackNavigator() {
 }
 
 
+function FootbalStackNavigator() {
+  const theme = useTheme();
+
+  return (
+    <Stack.Navigator initialRouteName="Index" screenOptions={{ ...commonHeaderStyle(theme), headerShown: false }}>
+      <Stack.Screen
+        name="Index"
+        component={Home}
+      />
+       <Stack.Screen
+        name="LeagueDetails"
+        component={MatchDetail}
+      />
+    </Stack.Navigator>
+  );
+}
+
 function SupportStackNavigator() {
   const theme = useTheme();
 
@@ -146,7 +164,7 @@ export default function AppStack() {
       >
         <Tab.Screen
           name="Home"
-          component={Home}
+          component={FootbalStackNavigator}
           options={{
             headerTitle: 'Kəşfet',
             tabBarLabel: 'Kəşfet',
