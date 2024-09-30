@@ -42,11 +42,7 @@ export default function Profile() {
       to: 'OrderList'
     },
     {
-      name: 'Bildirişlər',
-      to: 'NotificationList'
-    },
-    {
-      name: 'Təhlükəsizlik',
+      name: 'Şifrəni Yenilə',
       to: 'Security'
     },
     {
@@ -55,7 +51,7 @@ export default function Profile() {
     },
     {
       name: 'Gizlilik Siyasəti',
-      to: 'Terms'
+      to: 'Privacy'
     },
   ]
 
@@ -65,36 +61,32 @@ export default function Profile() {
 
   if(!user) return <View></View>
 
-  const userLabel = user.name?.split(' ')
-
   return (
       <View style={styles.container}>
         <View style={styles.info}>
-          {user.avatarURL ? <Avatar.Image style={{borderRadius: 45}} size={100} source={{ uri: user.avatarURL, headers: {
-            method: 'POST',
-            headers: {
-              Pragma: 'no-cache',
-            },
-          } }} /> : <Avatar.Text style={{borderRadius: 45}} labelStyle={{textTransform: 'uppercase'}} size={100} label={`${userLabel[0][0]}${userLabel[1][1]}`} /> }
+          <Avatar.Image style={{borderRadius: 16}} size={100} source={{ uri: user.avatarURL}} />
           
-          <Text variant='titleLarge'>{user.name}</Text>
-          <Text variant='bodySmall' style={{color: theme.colors.description}}>{user.email}</Text>
+          <View style={{gap: 8}}>
+            <Text variant='titleLarge' style={{color: theme.colors.primary}}>{user.name}</Text>
+            <Text variant='bodySmall' style={{color: theme.colors.description}}>{user.email}</Text>
+          </View>
         </View>
 
-        <ScrollView style={styles.menu}>
+        <ScrollView showsVerticalScrollIndicator={false} style={styles.menu}>
           {menu.map((item, idx) => (
             <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate(item.to)} key={idx}>
               <Text variant='titleMedium' style={{color: theme.colors.primary}}>{item.name}</Text>
-              <Ionicons name='chevron-forward' color={theme.colors.primary} size={24} />
+              {/* <Ionicons name='chevron-forward' color={theme.colors.primary} style={{opacity: .5}} size={24} /> */}
             </TouchableOpacity>
           ))}
 
             <TouchableOpacity style={styles.menuItem} onPress={showDialog}>
               <Text variant='titleMedium' style={{color: theme.colors.primary}}>Hesabdan Çıx</Text>
-              <Ionicons name='chevron-forward' color={theme.colors.primary} size={24} />
+              {/* <Ionicons name='chevron-forward' color={theme.colors.primary} style={{opacity: .5}} size={24} /> */}
             </TouchableOpacity>
-        </ScrollView>
 
+            <Text style={{paddingVertical: 18, opacity: .5}}>Versiya: 1.2.2</Text>
+        </ScrollView>
 
         <Portal>
           <Dialog style={{backgroundColor: '#252525'}} visible={visible} onDismiss={hideDialog}>
@@ -116,25 +108,30 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 30,
+    paddingTop: 50,
     backgroundColor: '#252525'
   },
   info: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 5
+    gap: 15,
+    borderWidth: 1,
+    padding: 20,
+    borderRadius: 16,
+    borderColor: '#B8860B'
   },
   menu: {
     marginTop: 50,
-    marginBottom: 10
+    marginBottom: 10,
   },
   menuItem: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 5,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#7B5506',
+    paddingVertical: 18,
+    borderBottomWidth: .2,
+    borderBottomColor: '#B8860B',
   }
 });

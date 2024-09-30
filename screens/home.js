@@ -1,11 +1,13 @@
 // FootballList.js
 import React, { useEffect, useState } from 'react';
-import { View, FlatList,TouchableOpacity, Dimensions, StyleSheet, Image } from 'react-native';
+import { View, FlatList,TouchableOpacity, Dimensions, StyleSheet, Image, ScrollView } from 'react-native';
 import {Button} from '../components/button'
 import apiFootbal from '../lib/footbal';
 import { useNavigation } from '@react-navigation/native';
-import { useTheme, Text } from 'react-native-paper';
+import { useTheme, Text, Divider } from 'react-native-paper';
 import { Video } from 'expo-av';
+import YoutubePlayer from 'react-native-youtube-iframe';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('screen')
 
@@ -13,25 +15,11 @@ const FootballList = () => {
   const [leagues, setLeagues] = useState([]);
   const theme = useTheme()
 
-  const videos = [
-    {
-      uri: "https://videos.pexels.com/video-files/9969035/9969035-hd_1080_1920_25fps.mp4",
-      id: 1
-    },
-    {
-      uri: "https://videos.pexels.com/video-files/9969035/9969035-hd_1080_1920_25fps.mp4",
-      id: 2
-    },
-    {
-      uri: "https://videos.pexels.com/video-files/9969035/9969035-hd_1080_1920_25fps.mp4",
-      id: 3
-    },
-  ]
-
   useEffect(() => {
     const fetchLeagues = async () => {
       try {
-        const response = await apiFootbal.get('/leagues?season=2022'); // Replace with your leagues API
+        const response = await apiFootbal.get('/leagues?season=2022&last=10'); // Replace with your leagues API
+        console.log(response.data)
         setLeagues(response.data.response);
       } catch (error) {
         console.error(error);
@@ -44,7 +32,7 @@ const FootballList = () => {
 
   const renderLeague = ({ item }) => (
     <TouchableOpacity
-      style={{padding: 10, backgroundColor: theme.colors.accent, borderRadius: 25}}
+      style={{padding: 10, height: 150, backgroundColor: theme.colors.accent, borderRadius: 25}}
       onPress={() => navigation.navigate('LeagueDetails', { league: item.league })}
     >
       <Image source={{ uri: item.league.logo }} style={styles.leagueLogo} />
@@ -53,46 +41,25 @@ const FootballList = () => {
     </TouchableOpacity>
   );
 
-  const renderLiveVideo = ({ item }) => (
-    <View>
-      <Video style={{width: width - 20, height: 250}} useNativeControls source={{uri: item.uri}} />
-    </View>
-  )
-
-  const renderLiveVideo2 = ({ item }) => (
-    <View>
-      <Video style={{width: width / 2, height: 200}} source={{uri: item.uri}} />
-    </View>
-  )
-
   return (
     <View style={styles.container}>
-      <View >
-      <FlatList 
-      data={videos}
-      contentContainerStyle={{gap: 15}}
-      renderItem={renderLiveVideo}
-      keyExtractor={(item) => item.id}
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      />
-      </View>
-      
-      <View>
-      <Text variant='titleLarge' style={{color: theme.colors.primary, marginBottom: 15}}>Canlı Yayımlar</Text>
-
-      <FlatList 
-      data={videos}
-      contentContainerStyle={{gap: 15}}
-      renderItem={renderLiveVideo2}
-      keyExtractor={(item) => item.id}
-      horizontal
-      showsHorizontalScrollIndicator={false}
+      <ScrollView>
+      <View  style={{height: 270, marginBottom: 40}}>
+        <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+        <Ionicons name='radio-outline' color={theme.colors.primary} size={16} />
+        <Text variant='titleMedium' style={{color: theme.colors.primary, marginVertical: 10}}>Canlı</Text>
+        </View>
+      <YoutubePlayer
+        height={300}
+        videoId={'0BKuQGHM6RE'}  // Replace with your video ID
       />
       </View>
 
-      <View>
-      <Text variant='titleLarge' style={{color: theme.colors.primary, marginBottom: 15}}>Ligalar</Text>
+      <View style={{marginBottom: 40}}>
+      <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+      <Ionicons name='earth' color={theme.colors.primary} size={16} />
+      <Text variant='titleMedium' style={{color: theme.colors.primary, marginVertical: 10, marginTop: 5}}>Ligalar</Text>
+      </View>
       <FlatList
         data={leagues}
         contentContainerStyle={{gap: 15}}
@@ -102,6 +69,23 @@ const FootballList = () => {
         showsHorizontalScrollIndicator={false}
       />
       </View>
+
+      <View>
+      <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+      <Ionicons name='list-outline' color={theme.colors.primary} size={16} />
+      <Text variant='titleMedium' style={{color: theme.colors.primary, marginVertical: 10, marginTop: 5}}>Təxminlər</Text>
+      </View>
+      <FlatList
+        data={Array.from(leagues).reverse()}
+        contentContainerStyle={{gap: 15}}
+        renderItem={renderLeague}
+        keyExtractor={(item) => item.league.id.toString()}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+      />
+      </View>
+
+      </ScrollView>
     </View>
   );
 };

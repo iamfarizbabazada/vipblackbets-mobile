@@ -48,7 +48,7 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <PaperProvider theme={theme}>
         <Navigation />
-        <StatusBar style='auto' />
+        <StatusBar style='light' backgroundColor='#252525' />
       </PaperProvider>
     </SafeAreaView>
   );
@@ -57,6 +57,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#252525'
   },
   loading: {
     flex: 1,

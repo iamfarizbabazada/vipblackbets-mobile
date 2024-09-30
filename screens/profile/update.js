@@ -70,12 +70,15 @@ export default function UpdateProfile() {
         name: 'avatar.jpg',
         type: 'image/jpeg',
       })
+
       try {
-        await api.patch('/profile/upload/avatar', formData, {
+        const res = await api.patch('/profile/upload/avatar', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         })
+
+        console.log(res.data)
         await fetchUser()
         navigation.navigate('ProfileList')
       } catch(err) {
@@ -90,7 +93,8 @@ export default function UpdateProfile() {
       <View style={styles.display}>
         <View style={styles.info}>
           <TouchableOpacity style={{marginBottom: 20}} onPress={pickImage}>
-            <Avatar.Icon style={{borderRadius: 45}} size={100} icon='plus' />
+            <Avatar.Icon style={{borderRadius: 16}} size={100} icon='plus' />
+            <Text style={{opacity: .5, padding: 10}}>+ Profil Şəkli</Text>
           </TouchableOpacity>
         </View>
 

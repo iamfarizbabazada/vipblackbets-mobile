@@ -137,7 +137,7 @@ export default function OrderCreate() {
 
         {contents[page].form}
 
-        <Button icon='information' loading={loading} mode='contained' onPress={goToNextPage}>
+        <Button loading={loading} mode='contained' onPress={goToNextPage}>
           {renderBtnLabel()}
         </Button>
       </View>

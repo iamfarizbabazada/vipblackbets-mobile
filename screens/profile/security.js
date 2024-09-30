@@ -1,6 +1,6 @@
 import { View, Image, StyleSheet, Alert } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import { Dialog, Portal, Text, useTheme} from 'react-native-paper'
+import { Dialog, Divider, Portal, Text, useTheme} from 'react-native-paper'
 import { Button } from '../../components/button'
 import { Input, Password } from '../../components/input'
 import { useFormik } from 'formik'
@@ -9,6 +9,7 @@ import * as Yup from 'yup'
 import { useAuthStore } from '../../store/auth'
 import { useState } from 'react'
 import api from '../../lib/api'
+import { Ionicons } from '@expo/vector-icons'
 
 const validationSchema = Yup.object({
   oldPassword: Yup.string().min(8),
@@ -63,20 +64,17 @@ export default function Security() {
   return (
     <View style={styles.container}>
       <View style={styles.display}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Button>Şifrəni Yenilə</Button>
-            <Button textColor='#FC583F' onPress={showDialog}>Hesabımı Sil</Button>
+
+          <View style={{gap: 15, marginBottom: 15}}>
+            <Password error={formik.errors.oldPassword} label="Mövcud Şifrə" value={formik.values.oldPassword} onChangeText={formik.handleChange('oldPassword')}  />
+            <Password error={formik.errors.newPassword} label="Yeni Şifrə" value={formik.values.newPassword} onChangeText={formik.handleChange('newPassword')} />
+            <Password error={formik.errors.confirmpassword} label="Yeni Şifrənin Təkrarı" value={formik.values.confirmpassword} onChangeText={formik.handleChange('confirmpassword')} />
           </View>
 
-          <View>
-            <Text variant='bodyMedium'>Mövcud Şifrə</Text>
-            <Password error={formik.errors.oldPassword} label="Mövcud Şifrə" value={formik.values.oldPassword} onChangeText={formik.handleChange('oldPassword')} />
-          </View>
-          
-          <View>
-            <Text variant='bodyMedium'>Yeni Şifrə</Text>
-            <Password error={formik.errors.newPassword} label="Şifrə" value={formik.values.newPassword} onChangeText={formik.handleChange('newPassword')} />
-            <Password error={formik.errors.confirmpassword} label="Şifrənin Təkrarı" value={formik.values.confirmpassword} onChangeText={formik.handleChange('confirmpassword')} />
+          <Divider />
+
+          <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+            <Button icon={() => <Ionicons name='trash' size={18} color="#FC583F" />} textColor='#FC583F' onPress={showDialog}>Hesabımı sil</Button>
           </View>
       </View>
 

@@ -40,6 +40,7 @@ export default function FormAmount({form, setFile}) {
 
       if (!result.canceled) {
         setFile(result.assets[0]);
+        Alert.alert('File selected!')
       } else {
         Alert.alert('No file selected');
       }

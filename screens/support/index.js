@@ -1,10 +1,11 @@
 import { View, Image, StyleSheet, Alert, FlatList, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import { Avatar, Badge, Checkbox, FAB, Searchbar, Text, useTheme} from 'react-native-paper'
+import { Avatar, Badge, Checkbox, Divider, FAB, Searchbar, Text, useTheme} from 'react-native-paper'
 import { Button } from '../../components/button'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import * as Notifications from 'expo-notifications';
+import * as Linking from 'expo-linking';
 
 import { useEffect, useState } from 'react'
 import api from '../../lib/api'
@@ -41,13 +42,14 @@ export default function Support() {
   }, [searchTerm])
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('Chat', {admin: item})} style={[styles.card, { borderWidth: .5,borderColor: theme.colors.description }]}>
+    <TouchableOpacity onPress={() => navigation.navigate('Chat', {admin: item})} style={[styles.card, ]}>
       <View style={{flexDirection: 'row', justifyContent: 'space-between' }}>
-      <View style={{ position: 'relative', flexDirection: 'row', gap: 10 }}>
+      <View style={{ position: 'relative', flexDirection: 'row', gap: 15, alignItems:'center' }}>
       <View>
       <Avatar.Image
         size={64}
-        source={{ uri: item.avatarURL}} // Replace with your avatar URL
+        style={{borderRadius: 16}}
+        source={{ uri: item.avatarURL?.toString()}} // Replace with your avatar URL
       />
       {item.isReaded && (
         <Badge
@@ -64,8 +66,8 @@ export default function Support() {
       )}
       </View>
         <View>
-        <Text style={{textTransform: 'capitalize'}}>{item.name}</Text>
-        <Text style={{color: theme.colors.description}}>{item.lastMessage}</Text>
+        <Text style={{textTransform: 'capitalize', fontSize: 18, opacity: .5}}>{item.name}</Text>
+        {/* <Text style={{color: theme.colors.description, width: '80%'}}>{item.lastMessage}</Text> */}
         </View>
     </View>
       </View>
@@ -75,7 +77,14 @@ export default function Support() {
   return (
       <View style={styles.container}>
         <View style={styles.actionContainer}>
-          <Searchbar placeholder='Axtar' placeholderTextColor={theme.colors.accent} iconColor={theme.colors.accent} value={searchTerm} onChangeText={setSearchTerm} />
+          <Searchbar placeholder='Axtar' placeholderTextColor={theme.colors.accent} style={{backgroundColor: '#353433', borderRadius: 10}} iconColor={theme.colors.accent} value={searchTerm} onChangeText={setSearchTerm} />
+          
+          <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+            <Ionicons name='headset' size={24} color={theme.colors.primary} />
+            <Text variant='titleLarge' style={{color: theme.colors.primary, marginVertical: 10}}>Canlı Dəstək</Text>
+          </View>
+          <Divider style={{marginTop: 15}} />
+
           <FlatList
             data={admins}
             renderItem={renderItem}
@@ -89,7 +98,7 @@ export default function Support() {
           icon={() => <Ionicons name="paper-plane" size={24} color="white" />}
           label='Telegram Dəstək'
           style={[styles.fab, {backgroundColor: theme.colors.accent}]}
-          onPress={() => console.log('Pressed')}
+          onPress={() => Linking.openURL('tg://resolve?domain=farizbabazada')}
         />
       </View>
   )
@@ -103,15 +112,12 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
-    padding: 16,
     backgroundColor: '#252525',
   },
   card: {
-    paddingVertical: 25,
-    paddingHorizontal: 15,
-    marginBottom: 12,
+    paddingVertical: 8,
     borderRadius: 8,
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   image: {
     width: '100%',

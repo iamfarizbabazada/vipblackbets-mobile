@@ -1,7 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { View, Image, FlatList, StyleSheet, RefreshControl } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Divider, Text, useTheme } from 'react-native-paper';
 import api from '../../lib/api';
 import image1 from '../../assets/images/providers/1.png';
 import image2 from '../../assets/images/providers/2.png';
@@ -14,8 +13,8 @@ export default function OrderList() {
   const [refreshing, setRefreshing] = useState(false);
 
   const transtus = {
-    'PENDING': 'İcrada',
-    'COMPLETED': 'Uğurlu',
+    'PENDING': 'Gözləyir',
+    'COMPLETED': 'Ödənildi',
     'REJECTED': 'Ləğv edildi',
   };
 
@@ -43,41 +42,43 @@ export default function OrderList() {
 
   const renderItem = ({ item }) => (
     <View style={[styles.card, { backgroundColor: theme.colors.primary }]}>
-      <Image style={{ alignSelf: 'center', objectFit: 'cover' }} source={images[item.provider]} />
+      <Image style={{ alignSelf: 'center', objectFit: 'cover' , marginBottom: 10}} source={images[item.provider]} />
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={[styles.title, { color: 'black' }]}>{item.paymentType}</Text>
-        <Text style={[styles.title, { color: 'black' }]}>{item.amount}₼</Text>
+        <Text style={[styles.title, { color: '#252525' }]}>{item.paymentType}</Text>
+        <Text style={[styles.title, { color: '#252525' }]}>{item.amount}₼</Text>
       </View>
 
+      <Divider />
+
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={[styles.description, { color: theme.colors.descriptions }]}>
-          {dayjs(item.createdAt).format('DD.MM.YYYY / HH:mm')}
+        <Text style={[styles.description, { color: '#252525' }]}>
+          Status: <Text style={[styles.description, { color: '#252525', fontWeight: 'bold' }]}>{transtus[item.status]}</Text>
         </Text>
-        <Text style={[styles.description, { color: theme.colors.descriptions }]}>
-          Status: {transtus[item.status]}
+        <Text style={[styles.description, { color: '#252525', opacity: .5 }]}>
+          {dayjs(item.createdAt).format('DD.MM.YYYY - HH:mm')}
         </Text>
       </View>
     </View>
   );
 
   return (
-    <View style={{backgroundColor: '#252525', flex: 1}}>
+    <View style={{ backgroundColor: '#252525', flex: 1 }}>
       <FlatList
-      data={orders}
-      renderItem={renderItem}
-      keyExtractor={item => item.id}
-      contentContainerStyle={styles.list}
-      refreshing={refreshing}
-      onRefresh={fetchOrders}
-    />
+        data={orders}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}
+        contentContainerStyle={[styles.list, { flexGrow: 1 }]} // flexGrow: 1 eklendi
+        refreshing={refreshing}
+        onRefresh={fetchOrders}
+        ListEmptyComponent={<Text style={{ color: 'white', textAlign: 'center' }}>No orders found.</Text>} // Boş liste için gösterim
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   list: {
-    flex: 1,
-    padding: 16,
+    padding: 20,
     backgroundColor: '#252525',
   },
   card: {
@@ -89,7 +90,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 1,
-    gap: 20
+    gap: 4
   },
   title: {
     fontSize: 18,
