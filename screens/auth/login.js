@@ -1,5 +1,5 @@
 import { View, Image, StyleSheet, Alert, Platform } from 'react-native'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { Text, useTheme} from 'react-native-paper'
 import { Button } from '../../components/button'
 import { Input, Password } from '../../components/input'
@@ -75,6 +75,7 @@ export default function Login() {
   const { login } = useAuthStore()
   const [err, setErr] = useState(null)
   const [loading, setLoading] = useState(false)
+  const {actionFlag} = useRoute().params || {}
 
   const uploadToken = async () => {
     const token = await registerForPushNotificationsAsync();
@@ -97,8 +98,13 @@ export default function Login() {
         resetForm()
         navigation.navigate('Home')
       } catch(err) {
-        if(err.response?.data?.action == 'VERIFICATION') return navigation.navigate('RegisterVerify', {email: values.email})
         setErr(err.response?.data?.message)
+          console.warn(err.response?.data?.action)
+        if(err.response?.data?.action == 'VERIFICATION') {
+          setLoading(false)
+          setErr(null)
+          return navigation.navigate('RegisterVerify', {email: values.email})
+        }
       }
       setLoading(false)
     },
@@ -112,8 +118,14 @@ export default function Login() {
   return (
     <View style={styles.container}>
       <Image style={styles.image} source={coverImage} />
-      
+
       <View style={styles.actionContainer}>
+        {actionFlag == 'VERIFIED' && (
+            <View style={{padding: 20, backgroundColor: theme.colors.accent, borderRadius: 16}}>
+            <Text style={{fontSize: 16, color: 'white'}}>Hesabınız təsdiqləndi. Zəhmət olmasa giriş edin.</Text>
+          </View>
+        )}
+
         <Text style={{color: theme.colors.primary, marginVertical: 10}} variant='titleLarge'>Xoş Gəldin!</Text>
         {err && <Text style={{color: theme.colors.error}} variant='bodySmall'>{err}</Text>}
 

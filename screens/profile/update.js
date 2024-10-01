@@ -80,9 +80,10 @@ export default function UpdateProfile() {
 
         console.log(res.data)
         await fetchUser()
-        navigation.navigate('ProfileList')
+        setErr("Profil şəkli uğurla yükləndi")
       } catch(err) {
         console.error(err)
+        setErr('Profil şəkli yüklənərkən xəta baş verdi')
       }
     }
   };
@@ -91,6 +92,11 @@ export default function UpdateProfile() {
   return (
     <View style={styles.container}>
       <View style={styles.display}>
+        {err && (
+          <View style={{padding: 20, backgroundColor: theme.colors.accent, borderRadius: 16}}>
+            <Text style={{fontSize: 16, color: 'white'}}>{err}</Text>
+          </View>
+        )}
         <View style={styles.info}>
           <TouchableOpacity style={{marginBottom: 20}} onPress={pickImage}>
             <Avatar.Icon style={{borderRadius: 16}} size={100} icon='plus' />

@@ -30,7 +30,7 @@ export default function RegisterVerify() {
       setLoading(true)
       try {
         await verify(values)
-        navigation.navigate('Login')
+        navigation.navigate('Login', {actionFlag: 'VERIFIED'})
       } catch(err) {
         setErr(err.response?.data?.message)
       }

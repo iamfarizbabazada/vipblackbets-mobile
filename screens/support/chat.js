@@ -29,7 +29,7 @@ export default function Chat() {
     socket.on('chat new', (newMessage) => {
       setMessages((previousMessages) => GiftedChat.append(previousMessages, {
         _id: newMessage._id,
-        image: msg.fileURL,
+        image: newMessage.fileURL,
         text: newMessage.text,
         createdAt: newMessage.createdAt,
         isReaded: newMessage.read,

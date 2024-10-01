@@ -29,8 +29,8 @@ export default function OrderCreate() {
 
   const formik = useFormik({
     initialValues: {
-      provider: '',
-      paymentType: '',
+      provider: 'MOSTBET',
+      paymentType: 'Bank Kartı',
       amount: 0
     },
     validationSchema: validationSchema,
@@ -63,7 +63,7 @@ export default function OrderCreate() {
         })
         setPage(page +1)
       } catch(err) {
-        console.error(err)
+        console.error(err.response?.data)
       }
       setLoading(false)
     }

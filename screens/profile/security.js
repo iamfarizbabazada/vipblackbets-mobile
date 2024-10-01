@@ -41,7 +41,7 @@ export default function Security() {
         await fetchUser()
         navigation.navigate('ProfileList')
       } catch(err) {
-        setErr(err.response?.data?.message)
+        setErr(err.response?.data?.error)
       }
       setLoading(false)
     },
@@ -64,6 +64,11 @@ export default function Security() {
   return (
     <View style={styles.container}>
       <View style={styles.display}>
+          {err && (
+            <View style={{padding: 20, backgroundColor: theme.colors.accent, borderRadius: 16}}>
+              <Text style={{fontSize: 16, color: 'white'}}>{err}</Text>
+            </View>
+          )}
 
           <View style={{gap: 15, marginBottom: 15}}>
             <Password error={formik.errors.oldPassword} label="Mövcud Şifrə" value={formik.values.oldPassword} onChangeText={formik.handleChange('oldPassword')}  />
