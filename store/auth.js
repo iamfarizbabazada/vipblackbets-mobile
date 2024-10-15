@@ -40,8 +40,8 @@ export const useAuthStore = create((set, get) => ({
     await api.post('/auth/logout')
     set({user: null})
   },
-  delete: async () => {
-    await api.delete('/profile')
+  delete: async ({oldPassword}) => {
+    await api.post('/profile/delete', {oldPassword})
     set({user: null})
   }
 }))

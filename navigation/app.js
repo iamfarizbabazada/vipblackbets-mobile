@@ -5,9 +5,13 @@ import { IconButton, Text, useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 
 import Home from '../screens/home';
+import About from '../screens/about';
 import Profile from '../screens/profile';
 import UpdateProfile from '../screens/profile/update';
 import Security from '../screens/profile/security';
+import Settings from '../screens/profile/settings';
+import HistoryProfile from '../screens/profile/history';
+import DeleteProfile from '../screens/profile/delete';
 import NotificationList from '../screens/profile/notifications';
 import OrderCreate from '../screens/order/create';
 import OrderList from '../screens/order/list';
@@ -17,6 +21,9 @@ import { Button } from '../components/button';
 import { Image, TouchableOpacity, View } from 'react-native';
 import TermsAndConditions from '../screens/terms';
 import MatchDetail from '../screens/fixtures';
+import BalanceCreate from '../screens/balance/create';
+import DepositCreate from '../screens/deposit/create';
+import BalanceList from '../screens/balance/history';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -55,6 +62,14 @@ function StackNavigator() {
         />
       <Stack.Screen
         options={{
+          headerTitle: 'Tənzimləmələr',
+          ...commonHeaderStyle(theme),
+         }}
+        name="Settings"
+        component={Settings}
+      />
+      <Stack.Screen
+        options={{
           headerTitle: 'Hesab Məlumatları',
           ...commonHeaderStyle(theme),
          }}
@@ -63,11 +78,53 @@ function StackNavigator() {
       />
        <Stack.Screen
         options={{
-          headerTitle: 'Şifrəni Yenilə',
+          headerTitle: 'Təhlükəsizlik',
           ...commonHeaderStyle(theme),
         }}
         name="Security"
         component={Security}
+      />
+        <Stack.Screen
+        options={{
+          headerTitle: 'Tarixçə',
+          ...commonHeaderStyle(theme),
+        }}
+        name="History"
+        component={HistoryProfile}
+      />
+       <Stack.Screen
+        options={{
+          headerTitle: 'Təhlükəsizlik',
+          ...commonHeaderStyle(theme),
+        }}
+        name="DeleteProfile"
+        component={DeleteProfile}
+      />
+            <Stack.Screen
+        options={{
+          headerTitle: '',
+          ...commonHeaderStyle(theme),
+          headerLeft: (props) => <TouchableOpacity {...props}><Text style={{color: theme.colors.primary}}>Ləğv et</Text></TouchableOpacity>
+        }}
+        name="Deposit"
+        component={DepositCreate}
+      />
+       <Stack.Screen
+        options={{
+          headerTitle: '',
+          ...commonHeaderStyle(theme),
+          headerLeft: (props) => <TouchableOpacity {...props}><Text style={{color: theme.colors.primary}}>Ləğv et</Text></TouchableOpacity>
+        }}
+        name="Balance"
+        component={BalanceCreate}
+      />
+        <Stack.Screen
+        options={{
+          headerTitle: 'Balans Tarixçəsi',
+          ...commonHeaderStyle(theme),
+        }}
+        name="BalanceList"
+        component={BalanceList}
       />
       <Stack.Screen
         options={{
@@ -86,6 +143,15 @@ function StackNavigator() {
         }}
         name="OrderList"
         component={OrderList}
+      />
+      <Stack.Screen
+        options={{
+          headerTitle: 'Haqqında',
+          ...commonHeaderStyle(theme),
+          headerLeft: (props) => <IconButton onPress={() => navigation.navigate('ProfileList')} icon={() => <Ionicons name='chevron-back' size={24} color={theme.colors.primary} />} size={24} />
+        }}
+        name="About"
+        component={About}
       />
       <Stack.Screen
         name="Terms"

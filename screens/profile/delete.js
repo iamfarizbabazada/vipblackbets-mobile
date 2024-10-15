@@ -13,10 +13,6 @@ import { Ionicons } from '@expo/vector-icons'
 
 const validationSchema = Yup.object({
   oldPassword: Yup.string().min(8),
-  newPassword: Yup.string().min(8),
-  confirmpassword: Yup.string()
-    .oneOf([Yup.ref('newPassword'), null], 'Şifreler eşleşmiyor')
-    .required('Onay şifresi gereklidir'),
 })
 
 export default function Security() {
@@ -35,11 +31,11 @@ export default function Security() {
   const formik = useFormik({
     validationSchema: validationSchema,
     onSubmit: async (values) => {
+      console.log(values)
       setLoading(true)
       try {
-        await api.patch('/profile/change-password', {oldPassword: values.oldPassword, newPassword: values.newPassword})
-        await fetchUser()
-        navigation.navigate('ProfileList')
+        await deleteUser(values)
+        hideDialog()
       } catch(err) {
         setErr(err.response?.data?.error)
       }
@@ -52,48 +48,51 @@ export default function Security() {
     }
   })
 
-  const handleDelete = async () => {
-    try {
-      await deleteUser('/profile')
-      hideDialog()
-    } catch(err) {
-      console.error(err)
-    }
-  }
-
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
       <View style={styles.display}>
-      <Ionicons name='lock-closed-outline' size={Dimensions.get('screen').width / 4} style={{alignSelf: 'center', marginVertical: 32}} color={theme.colors.description} />
+      <Ionicons name='trash-bin-outline' size={Dimensions.get('screen').width / 4} style={{alignSelf: 'center', marginVertical: 32}} color={theme.colors.description} />
       
-      <Text variant='titleMedium' style={{color: theme.colors.primary, textAlign: 'center', marginVertical: 10}}>Şifrəni Yenilə</Text>
+      <Text variant='titleMedium' style={{color: theme.colors.primary, textAlign: 'center', marginVertical: 10}}>Hesabın Silinməsi</Text>
         
         {err && (
             <View style={{padding: 20, backgroundColor: theme.colors.accent, borderRadius: 16}}>
               <Text style={{fontSize: 16, color: 'white'}}>{err}</Text>
             </View>
           )}
+          <View style={{gap: 10}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+              <Ionicons name='ellipse' size={8} color={theme.colors.primary} />
+              <Text variant='titleSmall' style={{color: theme.colors.primary}}>
+              Fikrinizi dəyişsəniz və ya təsadüfən VBB Hesabınızı silmisinizsə, onu müəyyən müddət ərzində bərpa edə bilərsiniz.
+              </Text>
+            </View>
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+              <Ionicons name='ellipse' size={8} color={theme.colors.primary} />
+              <Text variant='titleSmall' style={{color: theme.colors.primary}}>
+              Hesabınızı silmək üçün mövcud şifrənizi daxil edin!              </Text>
+            </View>
+          </View>
+
 
           <View style={{gap: 15, marginBottom: 15}}>
             <Password error={formik.errors.oldPassword} label="Mövcud Şifrə" value={formik.values.oldPassword} onChangeText={formik.handleChange('oldPassword')}  />
-            <Password error={formik.errors.newPassword} label="Yeni Şifrə" value={formik.values.newPassword} onChangeText={formik.handleChange('newPassword')} />
-            <Password error={formik.errors.confirmpassword} label="Yeni Şifrənin Təkrarı" value={formik.values.confirmpassword} onChangeText={formik.handleChange('confirmpassword')} />
           </View>
 
-          <Divider />
-
-          {/* <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-            <Button icon={() => <Ionicons name='trash' size={18} color="#FC583F" />} textColor='#FC583F' onPress={showDialog}>Hesabımı sil</Button>
-          </View> */}
+          <View style={{flexDirection: 'row', width: '80%', alignItems: 'center', gap: 10}}>
+              <Ionicons name='close-circle' size={18} color='#FF4D4F' />
+              <Text variant='titleSmall' style={{color: '#FF4D4F'}}>
+              Hesabınızı silmək üçün mövcud şifrənizi daxil edin!              </Text>
+            </View>
       </View>
 
-      <Button mode='contained' loading={loading} onPress={formik.handleSubmit}>
-        Şifrəni Yenilə
-      </Button>
       </ScrollView>
 
-      {/* <Portal>
+      <Button mode="contained" loading={loading} style={{backgroundColor: '#FF4D4F'}} onPress={showDialog}>Hesabımı sil</Button>
+
+
+      <Portal>
           <Dialog style={{backgroundColor: '#252525'}} visible={visible} onDismiss={hideDialog}>
             <Dialog.Title>Hesabı Sil</Dialog.Title>
             <Dialog.Content>
@@ -101,10 +100,10 @@ export default function Security() {
             </Dialog.Content>
             <Dialog.Actions>
               <Button textColor={theme.colors.accent} onPress={hideDialog}>Ləğv et</Button>
-              <Button onPress={handleDelete}>Sil</Button>
+              <Button onPress={formik.handleSubmit}>Sil</Button>
             </Dialog.Actions>
           </Dialog>
-        </Portal> */}
+        </Portal>
     </View>
   )
 }
