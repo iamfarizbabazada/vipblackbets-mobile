@@ -20,6 +20,9 @@ import * as Clipboard from "expo-clipboard";
 const validationSchema = Yup.object({
 	paymentType: Yup.string().required(),
 	amount: Yup.number().min(1).required(),
+	cardNumber: Yup.string().required(),
+	withdrawId: Yup.string().required(),
+	withdrawCode: Yup.string().required(),
 });
 
 const PaymentType = ({
@@ -65,52 +68,17 @@ const PaymentType = ({
 				</Text>
 			</View>
 			{selected == provider.name && (
-				<>
-					<View
-						style={{
-							paddingVertical: 5,
-							paddingHorizontal: 10,
-							justifyContent: "space-between",
-							flexDirection: "row",
-							flex: 1,
-							borderWidth: 1,
-							alignItems: "center",
-							borderColor:
-								selected == provider.name
-									? theme.colors.accent
-									: theme.colors.accent,
-							borderRadius: 15,
-						}}
-					>
-						<Text
-							style={{
-								color: theme.colors.primary,
-								fontSize: 16,
-								borderRightWidth: 0.5,
-								borderRightColor: theme.colors.primary,
-								paddingRight: 10,
-							}}
-						>
-							{provider.card}
-						</Text>
-						<Button
-							icon={() => (
-								<Ionicons
-									name="clipboard-outline"
-									color={theme.colors.primary}
-									size={18}
-								/>
-							)}
-							onPress={() => handleCopy(provider)}
-						>
-							Kopyala
-						</Button>
-					</View>
-
-					<View>
-						<AmountInput form={form} />
-					</View>
-				</>
+				<View>
+					<Input
+					keyboardType="number-pad"
+					onChangeText={(text) =>
+						form.setFieldValue("cardNumber", text)
+					}
+				/>
+					<Text variant="titleMedium" style={{ color: theme.colors.accent }}>
+						{provider.desc}
+					</Text>
+				</View>
 			)}
 		</TouchableOpacity>
 	);
@@ -141,7 +109,7 @@ function AmountInput({ form }) {
 				variant="titleSmall"
 				style={{ color: theme.colors.accent, fontWeight: "bold" }}
 			>
-				Balans artımı üçün komissiya yoxdur
+				Çıxarış üçün komissiya yoxdur
 			</Text>
 		</View>
 	);
@@ -164,29 +132,7 @@ export default function BalanceCreate() {
 		onSubmit: async (values) => {
 			setLoading(true);
 			try {
-				const formData = new FormData();
-
-				formData.append("paymentType", values.paymentType);
-				formData.append("amount", values.amount);
-
-				console.log(file);
-
-				if (file) {
-					console.log("girdi");
-					const formFile = {
-						uri: file.uri,
-						type: file.mimeType,
-						name: file.name,
-					};
-
-					formData.append("file", formFile);
-				}
-
-				await api.post("/profile/pay/balance", formData, {
-					headers: {
-						"Content-Type": "multipart/form-data",
-					},
-				});
+				await api.post("/profile/withdraw", values);
 				await fetchUser();
 				navigation.navigate("ProfileList");
 				setPage(page + 1);
@@ -201,14 +147,17 @@ export default function BalanceCreate() {
 		{
 			name: "Bank Kartına köçürmə",
 			card: "0595 5432 2423 1234",
+			desc: "Kartınızın 16 rəqəmini daxil edin!",
 		},
 		{
 			name: "M10",
 			card: "+994 55 515 82 83",
+			desc: "m10 hesabınızın nömrəsini daxil edin!",
 		},
 		{
 			name: "MPay",
 			card: "4525 5332 2483 2235",
+			desc: "MPay hesabınızın nömrəsini daxil edin!",
 		},
 	];
 
@@ -233,28 +182,22 @@ export default function BalanceCreate() {
 		<View style={styles.container}>
 			<View style={styles.actionContainer}>
 				<View style={styles.display}>
-					<View
-						style={{ flexDirection: "row", justifyContent: "space-between" }}
+					<Text
+						variant="titleLarge"
+						style={{ fontWeight: "bold", color: theme.colors.primary }}
 					>
-						<Text
-							variant="titleLarge"
-							style={{ fontWeight: "bold", color: theme.colors.primary }}
-						>
-							Balans artır
-						</Text>
-						<Text
-							variant="titleMedium"
-							style={{ color: theme.colors.description }}
-						>
-							Mövcud balans: {user.currentBalance}₼
-						</Text>
-					</View>
+						Yeni Çıxarış
+					</Text>
 					<Text variant="titleMedium" style={{ color: theme.colors.accent }}>
-						Balans artırmaq növünü seçin
+						Çıxarış məbləğini daxil edin
 					</Text>
 				</View>
 
 				<ScrollView>
+					<View style={{ marginVertical: 20 }}>
+						<AmountInput form={formik} />
+					</View>
+
 					{providers.map((provider, indx) => (
 						<PaymentType
 							form={formik}
@@ -265,6 +208,34 @@ export default function BalanceCreate() {
 							key={indx}
 						/>
 					))}
+
+
+					<Text variant="titleMedium" style={{ color: theme.colors.accent, marginVertical: 10 }}>
+						Çıxarış növünü seçin
+					</Text>
+
+
+					<View>
+						<View style={{position: 'absolute', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primary, height: 60, width: 80, borderBottomLeftRadius: 16, borderTopLeftRadius: 16}}>
+							<Text style={{color: '#252525'}} variant="titleMedium">ID</Text>
+						</View>
+						<Input
+							style={{ paddingLeft: 80 }}
+							textColor="#fff" 
+							onChangeText={text => formik.setFieldValue("withdrawId", text)}
+						/>
+					</View>
+
+					<View style={{marginVertical: 16}}>
+						<View style={{position: 'absolute', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primary, height: 60, width: 80, borderBottomLeftRadius: 16, borderTopLeftRadius: 16}}>
+							<Text style={{color: '#252525'}} variant="titleMedium">KOD</Text>
+						</View>
+						<Input
+							style={{ paddingLeft: 80 }}
+							textColor="#fff" 
+							onChangeText={text => formik.setFieldValue("withdrawCode", text)}
+						/>
+					</View>
 				</ScrollView>
 
 				<Button

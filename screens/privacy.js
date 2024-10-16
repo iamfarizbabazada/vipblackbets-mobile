@@ -1,8 +1,8 @@
-import React from 'react';
-import { WebView } from 'react-native-webview';
+import React from "react";
+import { WebView } from "react-native-webview";
 
 const TermsAndConditions = () => {
-  const htmlContent = `
+	const htmlContent = `
     <html>
       <head>
         <style>
@@ -60,13 +60,13 @@ const TermsAndConditions = () => {
     </html>
   `;
 
-  return (
-    <WebView
-      originWhitelist={['*']}
-      source={{ html: htmlContent }}
-      style={{ flex: 1 }}
-    />
-  );
+	return (
+		<WebView
+			originWhitelist={["*"]}
+			source={{ html: htmlContent }}
+			style={{ flex: 1 }}
+		/>
+	);
 };
 
 export default TermsAndConditions;

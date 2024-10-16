@@ -8,15 +8,19 @@ import {
 } from "react-native";
 import { Divider, Text, useTheme } from "react-native-paper";
 import api from "../../lib/api";
+import { Button } from "../../components/button";
 import image1 from "../../assets/images/providers/1.png";
 import image2 from "../../assets/images/providers/2.png";
 import image3 from "../../assets/images/providers/3.png";
 import dayjs from "dayjs";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
-export default function OrderList() {
+export default function DepositList() {
 	const theme = useTheme();
 	const [orders, setOrders] = useState([]);
 	const [refreshing, setRefreshing] = useState(false);
+	const navigation = useNavigation();
 
 	const transtus = {
 		PENDING: "Gözləyir",
@@ -33,7 +37,7 @@ export default function OrderList() {
 	const fetchOrders = async () => {
 		setRefreshing(true);
 		try {
-			const res = await api.get("/profile/orders");
+			const res = await api.get("/profile/history/deposit");
 			setOrders(res.data);
 		} catch (error) {
 			console.error(error); // Handle the error appropriately
@@ -47,41 +51,68 @@ export default function OrderList() {
 	}, []);
 
 	const renderItem = ({ item }) => (
-		<View style={[styles.card, { backgroundColor: theme.colors.primary }]}>
+		<View style={[styles.card, { backgroundColor: "#282828" }]}>
+			<Text style={[styles.title, { color: theme.colors.primary }]}>
+				ID - {item.withdrawId}
+			</Text>
 			<Image
 				style={{ alignSelf: "center", objectFit: "cover", marginBottom: 10 }}
 				source={images[item.provider]}
 			/>
 			<View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-				<Text style={[styles.title, { color: "#252525" }]}>
-					{item.paymentType}
+				<Text style={[styles.title, { color: theme.colors.primary }]}>
+					{item.amount}₼
 				</Text>
-				<Text style={[styles.title, { color: "#252525" }]}>{item.amount}₼</Text>
 			</View>
 
-			<Divider />
-
 			<View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-				<Text style={[styles.description, { color: "#252525" }]}>
+				<Text
+					style={[
+						styles.description,
+						{ color: theme.colors.accent, opacity: 0.5 },
+					]}
+				>
+					{dayjs(item.createdAt).format("DD.MM.YYYY - HH:mm")}
+				</Text>
+				<Text style={[styles.description, { color: theme.colors.accent }]}>
 					Status:{" "}
 					<Text
 						style={[
 							styles.description,
-							{ color: "#252525", fontWeight: "bold" },
+							{ color: theme.colors.accent, fontWeight: "bold" },
 						]}
 					>
 						{transtus[item.status]}
 					</Text>
 				</Text>
-				<Text style={[styles.description, { color: "#252525", opacity: 0.5 }]}>
-					{dayjs(item.createdAt).format("DD.MM.YYYY - HH:mm")}
-				</Text>
 			</View>
+			<Divider />
 		</View>
 	);
 
 	return (
 		<View style={{ backgroundColor: "#252525", flex: 1 }}>
+			<View
+				style={{
+					flexDirection: "row",
+					justifyContent: "center",
+					alignItems: "center",
+					gap: 10,
+					opacity: 0.5,
+				}}
+			>
+				<Ionicons
+					name="information-circle"
+					color={theme.colors.accent}
+					size={24}
+				/>
+				<Text
+					variant="titleSmall"
+					style={{ color: theme.colors.accent, fontWeight: "bold" }}
+				>
+					Depozitlər 1-5 dəqiqə ərzində yüklənir!
+				</Text>
+			</View>
 			<FlatList
 				data={orders}
 				renderItem={renderItem}
@@ -95,6 +126,17 @@ export default function OrderList() {
 					</Text>
 				} // Boş liste için gösterim
 			/>
+			<View
+				style={{
+					paddingVertical: 10,
+					paddingHorizontal: 20,
+					backgroundColor: "#282828",
+				}}
+			>
+				<Button mode="contained" onPress={() => navigation.navigate("Support")}>
+					Texniki Dəstək
+				</Button>
+			</View>
 		</View>
 	);
 }

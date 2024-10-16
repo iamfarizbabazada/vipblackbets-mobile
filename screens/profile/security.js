@@ -1,99 +1,148 @@
-import { View, Image, StyleSheet, Alert, Dimensions, ScrollView } from 'react-native'
-import { useNavigation } from '@react-navigation/native'
-import { Dialog, Divider, Portal, Text, useTheme} from 'react-native-paper'
-import { Button } from '../../components/button'
-import { Input, Password } from '../../components/input'
-import { useFormik } from 'formik'
-import * as Yup from 'yup'
+import {
+	View,
+	Image,
+	StyleSheet,
+	Alert,
+	Dimensions,
+	ScrollView,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Dialog, Divider, Portal, Text, useTheme } from "react-native-paper";
+import { Button } from "../../components/button";
+import { Input, Password } from "../../components/input";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
-import { useAuthStore } from '../../store/auth'
-import { useState } from 'react'
-import api from '../../lib/api'
-import { Ionicons } from '@expo/vector-icons'
+import { useAuthStore } from "../../store/auth";
+import { useState } from "react";
+import api from "../../lib/api";
+import { Ionicons } from "@expo/vector-icons";
 
 const validationSchema = Yup.object({
-  oldPassword: Yup.string().min(8),
-  newPassword: Yup.string().min(8),
-  confirmpassword: Yup.string()
-    .oneOf([Yup.ref('newPassword'), null], 'Şifreler eşleşmiyor')
-    .required('Onay şifresi gereklidir'),
-})
+	oldPassword: Yup.string().min(8),
+	newPassword: Yup.string().min(8),
+	confirmpassword: Yup.string()
+		.oneOf([Yup.ref("newPassword"), null], "Şifreler eşleşmiyor")
+		.required("Onay şifresi gereklidir"),
+});
 
 export default function Security() {
-  const navigation = useNavigation()
-  const theme = useTheme()
-  const { user, fetchUser, delete: deleteUser } = useAuthStore()
-  const [err, setErr] = useState(null)
-  const [loading, setLoading] = useState(false)
+	const navigation = useNavigation();
+	const theme = useTheme();
+	const { user, fetchUser, delete: deleteUser } = useAuthStore();
+	const [err, setErr] = useState(null);
+	const [loading, setLoading] = useState(false);
 
-  const [visible, setVisible] = useState(false);
+	const [visible, setVisible] = useState(false);
 
-  const showDialog = () => setVisible(true);
+	const showDialog = () => setVisible(true);
 
-  const hideDialog = () => setVisible(false);
-  
-  const formik = useFormik({
-    validationSchema: validationSchema,
-    onSubmit: async (values) => {
-      setLoading(true)
-      try {
-        await api.patch('/profile/change-password', {oldPassword: values.oldPassword, newPassword: values.newPassword})
-        await fetchUser()
-        navigation.navigate('ProfileList')
-      } catch(err) {
-        setErr(err.response?.data?.error)
-      }
-      setLoading(false)
-    },
-    initialValues: {
-      oldPassword: '',
-      newPassword: '',
-      confirmpassword: ''
-    }
-  })
+	const hideDialog = () => setVisible(false);
 
-  const handleDelete = async () => {
-    try {
-      await deleteUser('/profile')
-      hideDialog()
-    } catch(err) {
-      console.error(err)
-    }
-  }
+	const formik = useFormik({
+		validationSchema: validationSchema,
+		onSubmit: async (values) => {
+			setLoading(true);
+			try {
+				await api.patch("/profile/change-password", {
+					oldPassword: values.oldPassword,
+					newPassword: values.newPassword,
+				});
+				await fetchUser();
+				navigation.navigate("ProfileList");
+			} catch (err) {
+				setErr(err.response?.data?.error);
+			}
+			setLoading(false);
+		},
+		initialValues: {
+			oldPassword: "",
+			newPassword: "",
+			confirmpassword: "",
+		},
+	});
 
-  return (
-    <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-      <View style={styles.display}>
-      <Ionicons name='lock-closed-outline' size={Dimensions.get('screen').width / 4} style={{alignSelf: 'center', marginVertical: 32}} color={theme.colors.description} />
-      
-      <Text variant='titleMedium' style={{color: theme.colors.primary, textAlign: 'center', marginVertical: 10}}>Şifrəni Yenilə</Text>
-        
-        {err && (
-            <View style={{padding: 20, backgroundColor: theme.colors.accent, borderRadius: 16}}>
-              <Text style={{fontSize: 16, color: 'white'}}>{err}</Text>
-            </View>
-          )}
+	const handleDelete = async () => {
+		try {
+			await deleteUser("/profile");
+			hideDialog();
+		} catch (err) {
+			console.error(err);
+		}
+	};
 
-          <View style={{gap: 15, marginBottom: 15}}>
-            <Password error={formik.errors.oldPassword} label="Mövcud Şifrə" value={formik.values.oldPassword} onChangeText={formik.handleChange('oldPassword')}  />
-            <Password error={formik.errors.newPassword} label="Yeni Şifrə" value={formik.values.newPassword} onChangeText={formik.handleChange('newPassword')} />
-            <Password error={formik.errors.confirmpassword} label="Yeni Şifrənin Təkrarı" value={formik.values.confirmpassword} onChangeText={formik.handleChange('confirmpassword')} />
-          </View>
+	return (
+		<View style={styles.container}>
+			<ScrollView showsVerticalScrollIndicator={false}>
+				<View style={styles.display}>
+					<Ionicons
+						name="lock-closed-outline"
+						size={Dimensions.get("screen").width / 4}
+						style={{ alignSelf: "center", marginVertical: 32 }}
+						color={theme.colors.description}
+					/>
 
-          <Divider />
+					<Text
+						variant="titleMedium"
+						style={{
+							color: theme.colors.primary,
+							textAlign: "center",
+							marginVertical: 10,
+						}}
+					>
+						Şifrəni Yenilə
+					</Text>
 
-          {/* <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+					{err && (
+						<View
+							style={{
+								padding: 20,
+								backgroundColor: theme.colors.accent,
+								borderRadius: 16,
+							}}
+						>
+							<Text style={{ fontSize: 16, color: "white" }}>{err}</Text>
+						</View>
+					)}
+
+					<View style={{ gap: 15, marginBottom: 15 }}>
+						<Password
+							error={formik.errors.oldPassword}
+							label="Mövcud Şifrə"
+							value={formik.values.oldPassword}
+							onChangeText={formik.handleChange("oldPassword")}
+						/>
+						<Password
+							error={formik.errors.newPassword}
+							label="Yeni Şifrə"
+							value={formik.values.newPassword}
+							onChangeText={formik.handleChange("newPassword")}
+						/>
+						<Password
+							error={formik.errors.confirmpassword}
+							label="Yeni Şifrənin Təkrarı"
+							value={formik.values.confirmpassword}
+							onChangeText={formik.handleChange("confirmpassword")}
+						/>
+					</View>
+
+					<Divider />
+
+					{/* <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
             <Button icon={() => <Ionicons name='trash' size={18} color="#FC583F" />} textColor='#FC583F' onPress={showDialog}>Hesabımı sil</Button>
           </View> */}
-      </View>
+				</View>
 
-      <Button mode='contained' loading={loading} onPress={formik.handleSubmit}>
-        Şifrəni Yenilə
-      </Button>
-      </ScrollView>
+				<Button
+					mode="contained"
+					loading={loading}
+					onPress={formik.handleSubmit}
+				>
+					Şifrəni Yenilə
+				</Button>
+			</ScrollView>
 
-      {/* <Portal>
+			{/* <Portal>
           <Dialog style={{backgroundColor: '#252525'}} visible={visible} onDismiss={hideDialog}>
             <Dialog.Title>Hesabı Sil</Dialog.Title>
             <Dialog.Content>
@@ -105,25 +154,24 @@ export default function Security() {
             </Dialog.Actions>
           </Dialog>
         </Portal> */}
-    </View>
-  )
+		</View>
+	);
 }
 
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: '#252525',
-    justifyContent: 'space-between'
-  },
-  image: {
-    width: '100%',
-    height: '40%'
-  },
-  display: {
-    gap: 10,
-    marginBottom: 20
-  },
+	container: {
+		flex: 1,
+		paddingHorizontal: 20,
+		paddingVertical: 10,
+		backgroundColor: "#252525",
+		justifyContent: "space-between",
+	},
+	image: {
+		width: "100%",
+		height: "40%",
+	},
+	display: {
+		gap: 10,
+		marginBottom: 20,
+	},
 });
