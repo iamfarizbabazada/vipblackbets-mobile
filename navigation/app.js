@@ -27,6 +27,7 @@ import WithdrawCreate from "../screens/withdraw/create";
 import BalanceList from "../screens/balance/history";
 import DepositList from "../screens/deposit/history";
 import WithdrawList from "../screens/withdraw/history";
+import BonusWheel from "../screens/wheel";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -96,6 +97,14 @@ function StackNavigator() {
 				}}
 				name="UpdateProfile"
 				component={UpdateProfile}
+			/>
+			<Stack.Screen
+				options={{
+					headerTitle: "Bonus",
+					...commonHeaderStyle(theme),
+				}}
+				name="BonusWheel"
+				component={BonusWheel}
 			/>
 			<Stack.Screen
 				options={{

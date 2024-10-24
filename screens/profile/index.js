@@ -46,7 +46,7 @@ export default function Profile() {
 
 	const menu = [
 		{ name: "Balans", to: "Balance", icon: "dollar-sign" },
-		{ name: "Bonus", to: "Bonus", icon: "percent" },
+		{ name: "Bonus", to: "BonusWheel", icon: "percent" },
 		{ name: "Deposit", to: "Deposit", icon: "upload" },
 		{ name: "Çıxarış", to: "Withdraw", icon: "download" },
 		{ name: "Tarixçə", to: "History", icon: "clock" },
