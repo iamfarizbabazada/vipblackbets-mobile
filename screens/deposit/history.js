@@ -50,6 +50,9 @@ export default function DepositList() {
 		fetchOrders();
 	}, []);
 
+	const rewards = [2, 3, 4, 5, 1, 10]
+
+
 	const renderItem = ({ item }) => (
 		<View style={[styles.card, { backgroundColor: "#282828" }]}>
 			<Text style={[styles.title, { color: theme.colors.primary }]}>
@@ -61,7 +64,7 @@ export default function DepositList() {
 			/>
 			<View style={{ flexDirection: "row", justifyContent: "space-between" }}>
 				<Text style={[styles.title, { color: theme.colors.primary }]}>
-					{item.amount}₼
+					{item.bonus ? item.amount + (item.amount * rewards[item.bonus]) / 100 : item.amount}₼
 				</Text>
 			</View>
 

@@ -13,11 +13,13 @@ import { useAuthStore } from "../../store/auth";
 import { useEffect, useState } from "react";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import api from "../../lib/api";
 
 export default function Profile() {
 	const navigation = useNavigation();
 	const theme = useTheme();
 	const { user, fetchUser, logout } = useAuthStore();
+	const [bonus, setBonus] = useState()
 
 	const [visible, setVisible] = useState(false);
 
@@ -57,6 +59,7 @@ export default function Profile() {
 
 	useEffect(() => {
 		fetchUser();
+		api.get('/profile/bonus/aviable').then((res) => setBonus(res.data.bonus))
 	}, []);
 
 	if (!user) return <View></View>;
@@ -72,6 +75,8 @@ export default function Profile() {
 			</Text>
 		</TouchableOpacity>
 	);
+
+	const rewards = ['2%', '3%', '4%', '5%', '1%', '10%']
 
 	return (
 		<View style={styles.container}>
@@ -99,7 +104,7 @@ export default function Profile() {
 						<View>
 							<Text style={{ color: theme.colors.accent }}>Bonus</Text>
 							<Text style={{ color: theme.colors.primary, fontWeight: "bold" }}>
-								5%
+								{bonus?.aviable ? rewards[bonus?.bonus] : '-'}
 							</Text>
 						</View>
 					</View>

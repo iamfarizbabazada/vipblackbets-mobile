@@ -193,7 +193,7 @@ export default function BalanceCreate() {
 					</Text>
 				</View>
 
-				<ScrollView>
+				<ScrollView showsVerticalScrollIndicator={false}>
 					<View style={{ marginVertical: 20 }}>
 						<AmountInput form={formik} />
 					</View>
