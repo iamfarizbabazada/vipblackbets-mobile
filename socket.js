@@ -1,32 +1,89 @@
-import io from "socket.io-client";
-import { baseUrl, wssUrl } from "./lib/api";
+import { io } from 'socket.io-client';
+import { Alert } from 'react-native';
 
-const socket = io(wssUrl, {
-	transports: ["websocket"],
-	secure: false,
-	// jsonp: false,
-	reconnection: true,
-	reconnectionDelay: 1000,
-	reconnectionDelayMax: 5000,
-	reconnectionAttempts: 10,
-	autoConnect: true,
-	agent: false,
-	upgrade: false,
-	rejectUnauthorized: false,
-});
+const SOCKET_URL = 'http://192.168.1.89:8080';
 
-socket.on("connect_error", (error) => {
-	console.error("Bağlantı hatası:", error);
-});
+const connectSocket = () => {
+    try {
+        // Socket options - sadece WebSocket kullan
+        const socketOptions = {
+            auth: {
+                token: user.token
+            },
+            transports: ['websocket'], // Sadece WebSocket kullan
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            timeout: 10000,
+            forceNew: true,
+            autoConnect: false,
+            path: '/socket.io/', // Path'i belirt
+            secure: false, // HTTP için false
+        };
 
-// Diğer hataları dinleme
-socket.on("error", (error) => {
-	console.error("Socket hatası:", error);
-});
+        console.log('Bağlantı deneniyor:', SOCKET_URL);
 
-// Başarılı bağlantı
-socket.on("connect", () => {
-	console.log("Başarıyla bağlandı!");
-});
+        // Socket instance oluştur
+        const socket = io(SOCKET_URL, socketOptions);
 
-export default socket;
+        // Debug için tüm events'leri dinle
+        socket.onAny((event, ...args) => {
+            console.log('[Socket Event]:', event, args);
+        });
+
+        // Bağlantı event handlers
+        socket.on('connect', () => {
+            console.log('[Socket] Bağlantı başarılı - ID:', socket.id);
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('[Socket] Bağlantı hatası:', {
+                message: error.message,
+                description: error.description,
+                type: error.type,
+                context: error.context
+            });
+        });
+
+        socket.on('error', (error) => {
+            console.error('[Socket] Genel hata:', error);
+        });
+
+        socket.on('disconnect', (reason) => {
+            console.log('[Socket] Bağlantı kesildi:', reason);
+            if (reason === 'io server disconnect') {
+                setTimeout(() => {
+                    console.log('[Socket] Yeniden bağlanıyor...');
+                    socket.connect();
+                }, 1000);
+            }
+        });
+
+		fetch('http://192.168.1.89:8080/health')
+    .then(response => response.json())
+    .then(data => console.log('Server erişilebilir:', data))
+    .catch(error => console.error('Server erişim hatası:', error));
+
+        // Manuel olarak bağlantıyı başlat
+        socket.connect();
+
+        // State'e kaydet
+        setSocket(socket);
+
+        // Cleanup function
+        return () => {
+            if (socket) {
+                socket.removeAllListeners();
+                socket.close();
+                console.log('[Socket] Bağlantı kapatıldı');
+            }
+        };
+
+    } catch (error) {
+        console.error('[Socket] Başlatma hatası:', error);
+        Alert.alert('Bağlantı Hatası', 'Sunucuya bağlanırken bir hata oluştu.');
+        return () => {};
+    }
+};
+
+export default connectSocket;

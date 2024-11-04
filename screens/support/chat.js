@@ -1,241 +1,134 @@
 import React, { useEffect, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { Bubble, GiftedChat } from "react-native-gifted-chat";
+import { GiftedChat } from "react-native-gifted-chat";
 import { IconButton, Text, useTheme } from "react-native-paper";
-import { Input as TextInput } from "../../components/input";
-import socket from "../../socket";
-import { useAuthStore } from "../../store/auth";
+import { Input as TextInput } from "../../components/input"; // Özel bir girdi bileşeni
+import api from "../../lib/api"; // API çağrıları için kullanılacak kütüphane
+import { useAuthStore } from "../../store/auth"; // Kullanıcı bilgileri için kullanılacak store
 import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
-import moment from "moment";
+import * as ImagePicker from "expo-image-picker"; // Resim seçimi için kütüphane
+import moment from "moment"; // Tarih ve saat formatlama için kütüphane
 
 export default function Chat() {
-	const route = useRoute();
-	const navigation = useNavigation();
-	const [messages, setMessages] = useState([]);
-	const [text, setText] = useState("");
-	const { colors } = useTheme();
-	const { user } = useAuthStore();
+	const { colors } = useTheme(); // Temaya erişim
+	const { user } = useAuthStore(); // Kullanıcı bilgilerine erişim
 
-	const receiverId = route.params.admin?._id;
+	// State değişkenleri
+	const [messages, setMessages] = useState([]); // Mesajları saklamak için state
+	const [text, setText] = useState(""); // Girdi metnini saklamak için state
 
 	useEffect(() => {
-		navigation.setOptions({ headerTitle: route.params.admin?.name });
+		// Bileşen yüklendiğinde genel mesaj havuzundaki mesajları al
+		fetchMessages();
+	}, []);
 
-		socket.emit("join room", receiverId);
+	// API'den mesajları alır ve durumu günceller
+	const fetchMessages = async () => {
+		try {
+			const response = await api.get("messages/general"); // Genel mesaj havuzuna ait endpoint
+			const formattedMessages = response.data.map(formatMessage); // Mesajları formatla
+			setMessages(formattedMessages); // State güncelle
+		} catch (error) {
+			console.error("Mesajlar alınamadı:", error); // Hata durumunda konsola yaz
+		}
+	};
 
-		socket.on("chat new", (newMessage) => {
-			setMessages((previousMessages) =>
-				GiftedChat.append(previousMessages, {
-					_id: newMessage._id,
-					image: newMessage.fileURL,
-					text: newMessage.text,
-					createdAt: newMessage.createdAt,
-					isReaded: newMessage.read,
-					user: {
-						name: newMessage.sender.name,
-						_id: newMessage.sender._id,
-					},
-				}),
-			);
-		});
+	// Mesajı belirli bir formatta oluşturur
+	const formatMessage = (msg) => ({
+		_id: msg.id, // Mesajın ID'si
+		text: msg.text, // Mesaj metni
+		createdAt: new Date(msg.createdAt), // Mesajın oluşturulma tarihi
+		user: { _id: msg.senderId, name: msg.senderName }, // Mesajı gönderen kullanıcı bilgileri
+	});
 
-		socket.on("messages", (chatMessages) => {
-			console.log(chatMessages);
-
-			const formattedMessages = chatMessages.map((msg) => ({
-				_id: msg._id,
-				text: msg.text,
-				createdAt: msg.createdAt,
-				isReaded: msg.read,
-				user: {
-					name: msg.sender.name,
-					_id: msg.sender._id,
-				},
-				image: msg.fileURL,
-			}));
-			setMessages(formattedMessages);
-		});
-
-		socket.emit("chat history");
-
-		return () => {
-			socket.emit("leave room");
-			socket.off();
-		};
-	}, [receiverId]);
-
+	// Resim seçme işlevi
 	const pickImage = async () => {
-		// Request permission
-		const permissionResult =
-			await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-		if (permissionResult.granted === false) {
-			alert("Permission to access camera roll is required!");
+		const permission = await ImagePicker.requestMediaLibraryPermissionsAsync(); // Medya kütüphanesi izni iste
+		if (!permission.granted) {
+			Alert.alert("İzin gerekmekte", "Dosya yüklemek için izin vermeniz gerekmektedir.");
 			return;
 		}
 
-		// Launch the image picker
 		const result = await ImagePicker.launchImageLibraryAsync({
 			mediaTypes: ImagePicker.MediaTypeOptions.Images,
-			allowsEditing: true,
 			quality: 1,
-			allowsMultipleSelection: false,
 			base64: true,
 		});
 
-		const base64Size =
-			result.assets[0].base64.length * (3 / 4) -
-			(result.assets[0].base64.endsWith("==")
-				? 2
-				: result.assets[0].base64.endsWith("=")
-					? 1
-					: 0);
-
-		if (base64Size > 1048576) {
-			// 1 MB = 1048576 bytes
-			alert("Selected image exceeds the 1MB size limit.");
-			return;
-		}
-
-		if (!result.canceled) {
-			socket.emit("upload file", result.assets[0].base64);
+		if (!result.canceled && isValidImageSize(result.assets[0].base64)) {
+			// Resim boyutunu kontrol et
+			// Resmi genel havuza gönder
+			await api.post("messages/general/upload", { image: result.assets[0].base64 });
+		} else {
+			Alert.alert("Hata!", "Seçilen dosya 1MB'dan büyük olamaz."); // Hata durumu
 		}
 	};
 
-	const onSend = (newMessages = []) => {
-		const msg = newMessages[0];
-		// Use the user's ID here
-		socket.emit("chat message", msg.text);
-		// setMessages((previousMessages) => GiftedChat.append(previousMessages, {
-		//   ...msg,
-		//   user: {
-		//     _id: user._id, // Replace with actual user's ID
-		//     name: user.name // You may want to include the user's name as well
-		//   }
-		// }));
+	// Mesaj gönderme işlevi
+	const onSend = async (newMessages = []) => {
+		const message = newMessages[0]; // Yeni gelen mesajı al
+		if (message?.text.trim()) {
+			try {
+				await api.post("messages/general", { text: message.text }); // Mesajı API üzerinden gönder
+				setMessages((previousMessages) =>
+					GiftedChat.append(previousMessages, {
+						...message,
+						user: { _id: user._id, name: user.name }, // Kullanıcı bilgileri ile birlikte ekle
+					})
+				);
+				setText(""); // Mesaj metnini sıfırla
+			} catch (error) {
+				console.error("Mesaj gönderilemedi:", error); // Hata durumunda konsola yaz
+			}
+		}
 	};
 
-	const renderBubble = (props) => {
-		const { currentMessage } = props;
-
-		return (
-			<View>
-				<Bubble
-					{...props}
-					wrapperStyle={{
-						left: {
-							backgroundColor: "transparent",
-							borderWidth: 0.5,
-							borderColor: colors.description,
-						},
-						right: { backgroundColor: colors.primary },
-					}}
-					textStyle={{ left: { color: "#fff" } }}
-				>
-					<View style={styles.bubbleContainer}>
-						<Text style={styles.bubbleText}>{currentMessage.text}</Text>
-					</View>
-				</Bubble>
-			</View>
-		);
+	// 1MB boyut kontrolü
+	const isValidImageSize = (base64) => {
+		const base64Size = (base64.length * 3) / 4 - (base64.endsWith("==") ? 2 : base64.endsWith("=") ? 1 : 0);
+		return base64Size <= 1048576; // 1MB
 	};
 
-	const renderTime = (props) => {
-		// Use moment to format the time in 24-hour format
-		return (
-			<View style={{ padding: 5 }}>
-				<Text style={{ color: "gray", fontSize: 12 }}>
-					{moment(props.currentMessage.createdAt).format("HH:mm")}
-				</Text>
-			</View>
-		);
-	};
-
-	const renderInputToolbar = () => {
-		return (
-			<View
-				style={{
-					flexDirection: "row",
-					padding: 10,
-					alignItems: "center",
-					gap: 5,
-				}}
-			>
-				<IconButton
-					icon={() => (
-						<Ionicons name="image-outline" size={32} color={colors.primary} />
-					)}
-					size={32}
-					onPress={pickImage}
-				/>
-				<TextInput
-					mode="outlined"
-					placeholderTextColor={"#71727A4D"}
-					placeholder="Yazmağa başlayın.."
-					value={text}
-					onChangeText={setText}
-					style={{ flex: 1 }}
-				/>
-				<IconButton
-					icon={() => <Ionicons name="paper-plane" size={22} color="white" />}
-					mode="contained"
-					size={32}
-					style={{ backgroundColor: colors.primary, borderRadius: 16 }}
-					disabled={text.length === 0}
-					onPress={() => {
-						if (text.trim().length > 0) {
-							onSend([
-								{
-									text,
-									user: { _id: user._id, name: user.name },
-									createdAt: new Date(),
-									_id: Math.random().toString(36).substring(7),
-								},
-							]);
-							setText("");
-						}
-					}}
-				/>
-			</View>
-		);
-	};
+	// Mesaj giriş alanını render eder
+	const renderInputToolbar = () => (
+		<View style={styles.inputContainer}>
+			<IconButton icon="image-outline" size={32} color={colors.primary} onPress={pickImage} />
+			<TextInput
+				mode="outlined"
+				placeholder="Mesajınızı yazın..."
+				placeholderTextColor="#71727A4D"
+				value={text}
+				onChangeText={setText}
+				style={styles.textInput}
+			/>
+			<IconButton
+				icon={() => <Ionicons name="paper-plane" size={28} color="white" />}
+				size={22}
+				color="white"
+				style={styles.sendButton}
+				disabled={!text.trim()} // Mesaj boşsa butonu devre dışı bırak
+				onPress={() => onSend([{ text, _id: Math.random().toString(36).substring(7), createdAt: new Date() }])} // Mesajı gönder
+			/>
+		</View>
+	);
 
 	return (
 		<View style={styles.container}>
 			<GiftedChat
 				messages={messages}
 				onSend={onSend}
-				user={user}
-				renderAvatar={(props) => {
-					return null;
-				}}
-				renderInputToolbar={renderInputToolbar}
-				renderBubble={renderBubble}
-				renderTime={renderTime}
-				style={{ backgroundColor: colors.background }}
+				user={{ _id: user._id, name: user.name }} // Kullanıcı bilgileri
+				renderAvatar={null} // Avatar'ı gizle
+				renderInputToolbar={renderInputToolbar} // Giriş alanını render et
+				style={{ backgroundColor: colors.background }} // Arka plan rengi
 			/>
 		</View>
 	);
 }
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: "#252525",
-	},
-	bubbleContainer: {
-		flexDirection: "column",
-		alignItems: "flex-start",
-	},
-	bubbleText: {
-		color: "red",
-	},
-	readText: {
-		fontSize: 12,
-		color: "white",
-		marginTop: 2,
-		alignSelf: "flex-end",
-	},
+	container: { flex: 1, backgroundColor: "#252525" },
+	inputContainer: { flexDirection: "row", padding: 10, alignItems: "center" },
+	textInput: { flex: 1, backgroundColor: "#1e1e1e" }, // Giriş alanı arka plan rengi
+	sendButton: { backgroundColor: "primary", borderRadius: 16 }, // Gönder butonu stili
 });

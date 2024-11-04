@@ -8,14 +8,17 @@ import * as Yup from "yup";
 
 import { useAuthStore } from "../../store/auth";
 import { useState } from "react";
+import coverImage from "../../assets/images/vbb-login-cover.png";
+import LottieView from "lottie-react-native";
+import vbbbeeAnimation from '../../data/vbbbee.json';
 
 const validationSchema = Yup.object({
 	name: Yup.string().required(),
 	email: Yup.string().email().required(),
 	password: Yup.string().min(8).required(),
 	confirmpassword: Yup.string()
-		.oneOf([Yup.ref("password"), null], "Şifreler eşleşmiyor")
-		.required("Onay şifresi gereklidir"),
+		.oneOf([Yup.ref("password"), null], "Şifrələr eyni deyil")
+		.required("Şifrənin təsdiqi vacibdir"),
 	check: Yup.boolean().isTrue(),
 });
 
@@ -49,13 +52,15 @@ export default function Register() {
 
 	return (
 		<View style={styles.container}>
+			<Image style={styles.image} source={coverImage} />
+			<LottieView source={vbbbeeAnimation} autoPlay loop={true} style={styles.vbbbee} />
 			<View style={styles.actionContainer}>
 				<View style={{ marginVertical: 10, gap: 5 }}>
 					<Text style={{ color: theme.colors.primary }} variant="titleLarge">
 						Qeydiyyatdan Keç
 					</Text>
 					<Text style={{ color: theme.colors.description }} variant="bodySmall">
-						Başlamaq üçün yeni hesab açın!
+						Yeni macəraya başlamaq üçün hesab aç
 					</Text>
 				</View>
 
@@ -93,7 +98,7 @@ export default function Register() {
 						onChangeText={formik.handleChange("confirmpassword")}
 					/>
 
-					<View style={{ flexDirection: "row", width: "90%" }}>
+					<View style={{ flexDirection: "row", width: "90%", marginTop: 20 }}>
 						<Checkbox
 							status={formik.values.check ? "checked" : "unchecked"}
 							onPress={() =>
@@ -101,14 +106,9 @@ export default function Register() {
 							}
 						/>
 						<TouchableOpacity onPress={() => navigation.navigate("Terms")}>
-							<Text>
-								Qeydiyyatdan keçərək,
-								<Text style={{ color: theme.colors.primary }}>
-									{" "}
-									Şərtlər & Qaydalar və Gizlilik Siyasəti ilə razılaşdığımı
-									bildirirəm.{" "}
-								</Text>
-							</Text>
+							<Text style={{ color: theme.colors.primary, fontSize: 12 }}>Qeydiyyatdan keçərək,
+        					Şərtlər & Qaydalar və Gizlilik Siyasəti ilə razılaşdığımı bildirirəm!
+    						</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -117,20 +117,21 @@ export default function Register() {
 					mode="contained"
 					loading={loading}
 					onPress={formik.handleSubmit}
+					style={styles.registerButton}
 				>
-					Qeydiyyatdan Keç
+					Davam Et
 				</Button>
 
 				<Text
 					style={{ alignSelf: "center", color: theme.colors.description }}
 					variant="bodyMedium"
 				>
-					Hesabın var?{" "}
+					Artıq hesabın var? {"  "}
 					<Text
 						style={{ color: theme.colors.primary }}
 						onPress={() => navigation.navigate("Login")}
 					>
-						Daxil ol
+						Daxil Ol 
 					</Text>
 				</Text>
 			</View>
@@ -141,19 +142,43 @@ export default function Register() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "#252525",
+		backgroundColor: "#B8860B",
+		
 	},
 	image: {
 		width: "100%",
-		height: "40%",
+		height: "20%",
+		backgroundColor: "#B8860B",
+	},
+	vbbbee: {
+		position: 'absolute',
+		top: 0,
+		alignSelf: 'flex-end', // Yatay olarak ortalama
+		width: '40%', // Genişliği ihtiyaca göre ayarlayın
+		height: '40%', // Yüksekliği ihtiyaca göre ayarlayın
+		zIndex: 2,
+
 	},
 	actionContainer: {
 		flex: 1,
 		padding: 20,
 		gap: 10,
+		backgroundColor: "#1e1e1e",
+		borderTopRightRadius: 30,
+		borderTopLeftRadius: 30,
+		
 	},
 	display: {
 		gap: 10,
-		marginBottom: 20,
+		marginBottom: 10,
+		marginTop: 0,
+		fontSize: 14,
+		
+	},
+	registerButton:{
+		borderRadius: 10,
+		color: "#252525",
+		marginBottom: 10,
+
 	},
 });

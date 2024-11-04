@@ -20,12 +20,14 @@ import image1 from "../../assets/images/providers/1.png";
 import image2 from "../../assets/images/providers/2.png";
 import image3 from "../../assets/images/providers/3.png";
 
+// Form doğrulama için Yup kullanarak gerekli kuralları tanımlıyoruz
 const validationSchema = Yup.object({
 	provider: Yup.string().required(),
 	amount: Yup.number().min(1).required(),
 	withdrawId: Yup.string().required(),
 });
 
+// Ödeme türünü temsil eden bileşen
 const PaymentType = ({
 	selected,
 	provider,
@@ -43,7 +45,7 @@ const PaymentType = ({
 				marginVertical: 10,
 				gap: 10,
 				backgroundColor:
-					selected == provider.name
+					selected === provider.name
 						? theme.colors.primary
 						: theme.colors.accent,
 				borderRadius: 25,
@@ -55,11 +57,11 @@ const PaymentType = ({
 				<RadioButton
 					color={"#252525"}
 					uncheckedColor={"#252525"}
-					status={selected == provider.name ? "checked" : "unchecked"}
+					status={selected === provider.name ? "checked" : "unchecked"}
 				/>
 				<Image source={provider.image} />
 			</View>
-			{selected == provider.name && (
+			{selected === provider.name && (
 				<View>
 					<AmountInput form={form} />
 					<Input
@@ -74,42 +76,41 @@ const PaymentType = ({
 	);
 };
 
+// Miktar inputu bileşeni
 function AmountInput({ form }) {
 	const theme = useTheme();
 
 	return (
-		<View style={{}}>
-			<View>
-				<Input
-					label="Məbləğ"
-					outlineStyle={{
-						backgroundColor: "#252525",
-					}}
-					mode="outlined"
-					value={
-						isNaN(form.values?.amount?.toString())
-							? "0"
-							: form.values?.amount?.toString()
-					}
-					keyboardType="number-pad"
-					onChangeText={(text) =>{
-						if(isNaN(text)) return form.setFieldValue("amount", 0)
-						form.setFieldValue("amount", Number.parseFloat(text))
-					}}
-					cursorColor={theme.colors.primary}
-				/>
-			</View>
+		<View>
+			<Input
+				label="Məbləğ"
+				outlineStyle={{
+					backgroundColor: "#252525",
+				}}
+				mode="outlined"
+				value={
+					isNaN(form.values?.amount?.toString())
+						? "0"
+						: form.values?.amount?.toString()
+				}
+				keyboardType="number-pad"
+				onChangeText={(text) => {
+					// Input boşsa 0 atanıyor, aksi takdirde sayısal değeri alıyor
+					form.setFieldValue("amount", text ? Number.parseFloat(text) : 0);
+				}}
+				cursorColor={theme.colors.primary}
+			/>
 		</View>
 	);
 }
 
+// Ana bileşen
 export default function BalanceCreate() {
 	const navigation = useNavigation();
 	const theme = useTheme();
-	const { user, fetchUser } = useAuthStore();
+	const { user, fetchUser } = useAuthStore(); // Kullanıcı bilgilerini getiriyoruz
 	const [page, setPage] = useState(0);
 	const [loading, setLoading] = useState(false);
-	const [file, setFile] = useState(false);
 
 	const formik = useFormik({
 		initialValues: {
@@ -120,6 +121,7 @@ export default function BalanceCreate() {
 		onSubmit: async (values) => {
 			setLoading(true);
 			try {
+				// API'ye gönderim yapılır ve kullanıcı bilgileri güncellenir
 				await api.post("/profile/pay/deposit", values);
 				await fetchUser();
 				navigation.navigate("ProfileList");
@@ -148,25 +150,31 @@ export default function BalanceCreate() {
 
 	const selected = formik.values.provider;
 
+	// Clipboard'a kopyalama fonksiyonu
 	const copyToClipboard = async (provider) => {
 		await Clipboard.setStringAsync(provider.card);
 	};
 
+	// Sağlayıcı seçimini ayarlayan fonksiyon
 	const handleSelect = (provider) => {
 		formik.setFieldValue("provider", provider.name);
 	};
 
+	// Mevcut bakiye ile girilen miktarın karşılaştırıldığı fonksiyon
 	const renderBalanceError = useCallback(() => {
-	  if(formik.values.amount > user.currentBalance ) return (
-	    <Text style={{padding: 20, borderRadius: 16, backgroundColor: theme.colors.accent}}>Balansda kifayət qədər məbləğ yoxdur</Text>
-	  )
-
-	}, [formik.values.amount, user?.currentBalance])
+		if (formik.values.amount > user.currentBalance) {
+			return (
+				<Text style={{ padding: 20, borderRadius: 16, backgroundColor: theme.colors.accent }}>
+					Balansda kifayət qədər məbləğ yoxdur
+				</Text>
+			);
+		}
+	}, [formik.values.amount, user?.currentBalance]);
 
 	return (
 		<View style={styles.container}>
 			<View style={styles.actionContainer}>
-			{renderBalanceError()}
+				{renderBalanceError()}
 				<View style={styles.display}>
 					<View
 						style={{ flexDirection: "row", justifyContent: "space-between" }}
@@ -207,7 +215,10 @@ export default function BalanceCreate() {
 					loading={loading}
 					mode="contained"
 					onPress={formik.handleSubmit}
-					disabled={(formik.values.amount > user.currentBalance) ||  formik.values.amount === 0 || formik.values.amount === null}
+					disabled={
+						formik.values.amount > user.currentBalance ||
+						formik.values.amount === 0
+					} // Bakiye kontrolü ve 0 değeri kontrolü
 				>
 					Təsdiqlə
 				</Button>

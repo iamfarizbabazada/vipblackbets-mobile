@@ -6,7 +6,7 @@ export function Button({ children, style, ...props }) {
 
 	return (
 		<PaperButton
-			labelStyle={{ fontSize: 16 }}
+			labelStyle={{ fontSize: 18, color: "#1e1e1e" }}
 			style={combinedStyles}
 			{...props}
 		>

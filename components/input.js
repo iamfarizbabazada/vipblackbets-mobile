@@ -9,7 +9,6 @@ export function Input({ style, outlineStyle, ...props }) {
 
 	return (
 		<PaperInput
-			textColor="#B8860B"
 			placeholderTextColor="#B8860B"
 			mode="outlined"
 			outlineStyle={combinedOutlineStyles}
@@ -24,10 +23,14 @@ const styles = StyleSheet.create({
 		backgroundColor: "transparent",
 		paddingLeft: 10,
 		height: 60,
+		color: "#B8860B",
+		fontSize: 14,
 	},
 	outline: {
-		borderRadius: 16,
+		borderRadius: 10,
 		borderColor: "#B8860B",
+		color: "#B8860B",
+		fontSize: 14,
 	},
 });
 
@@ -42,7 +45,6 @@ export function Password({ style, outlineStyle, ...props }) {
 			mode="outlined"
 			outlineStyle={combinedOutlineStyles}
 			style={combinedStyles}
-			textColor="#B8860B"
 			placeholderTextColor="#B8860B"
 			{...props}
 			right={

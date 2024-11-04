@@ -1,7 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import Onboarding from "../screens/auth/onboarding";
 import Login from "../screens/auth/login";
 import Register from "../screens/auth/register";

@@ -17,32 +17,27 @@ import api from "../../lib/api";
 import { useAuthStore } from "../../store/auth";
 import * as Clipboard from "expo-clipboard";
 
+// Giriş doğrulama şeması. PaymentType zorunlu string, amount ise en az 1 olan bir sayı.
 const validationSchema = Yup.object({
 	paymentType: Yup.string().required(),
 	amount: Yup.number().min(1).required(),
 });
 
-const PaymentType = ({
-	selected,
-	provider,
-	form,
-	handleSelect,
-	handleCopy,
-}) => {
+// PaymentType bileşeni: Kullanıcı seçimini ve kopyalama işlemini yönetir.
+const PaymentType = ({ selected, provider, form, handleSelect, handleCopy }) => {
 	const theme = useTheme();
 
 	return (
 		<TouchableOpacity
 			activeOpacity={0.8}
-			onPress={() => handleSelect(provider)}
+			onPress={() => handleSelect(provider)} // Sağlanan yöntemi çağırarak seçimi günceller.
 			style={{
 				marginVertical: 10,
 				gap: 10,
 				borderWidth: 0.5,
-				borderColor:
-					selected == provider.name
-						? theme.colors.primary
-						: theme.colors.accent,
+				borderColor: selected === provider.name
+					? theme.colors.primary
+					: theme.colors.accent,
 				borderRadius: 25,
 				paddingVertical: 10,
 				paddingHorizontal: 10,
@@ -52,7 +47,7 @@ const PaymentType = ({
 				<RadioButton
 					color={theme.colors.primary}
 					uncheckedColor={theme.colors.accent}
-					status={selected == provider.name ? "checked" : "unchecked"}
+					status={selected === provider.name ? "checked" : "unchecked"}
 				/>
 				<Text
 					style={{
@@ -64,7 +59,8 @@ const PaymentType = ({
 					{provider.name}
 				</Text>
 			</View>
-			{selected == provider.name && (
+			{/* Seçili ödeme yöntemi için, kart bilgisi ve kopyalama butonu gösteriliyor */}
+			{selected === provider.name && (
 				<>
 					<View
 						style={{
@@ -75,10 +71,7 @@ const PaymentType = ({
 							flex: 1,
 							borderWidth: 1,
 							alignItems: "center",
-							borderColor:
-								selected == provider.name
-									? theme.colors.accent
-									: theme.colors.accent,
+							borderColor: theme.colors.accent,
 							borderRadius: 15,
 						}}
 					>
@@ -106,7 +99,6 @@ const PaymentType = ({
 							Kopyala
 						</Button>
 					</View>
-
 					<View>
 						<AmountInput form={form} />
 					</View>
@@ -116,37 +108,32 @@ const PaymentType = ({
 	);
 };
 
+// AmountInput bileşeni: Kullanıcının girdiği miktarı günceller.
 function AmountInput({ form }) {
 	const theme = useTheme();
 
 	return (
-		<View style={{}}>
-			<View>
-				<Input
-					label="Məbləğ"
-					mode="outlined"
-					value={
-						isNaN(form.values?.amount?.toString())
-							? "0"
-							: form.values?.amount?.toString()
-					}
-					keyboardType="number-pad"
-					onChangeText={(text) =>
-						form.setFieldValue("amount", Number.parseFloat(text))
-					}
-					cursorColor={theme.colors.primary}
-				/>
-			</View>
-			<Text
-				variant="titleSmall"
-				style={{ color: theme.colors.accent, fontWeight: "bold" }}
-			>
+		<View>
+			<Input
+				label="Məbləğ"
+				mode="outlined"
+				value={
+					isNaN(form.values?.amount?.toString()) ? "0" : form.values?.amount?.toString()
+				}
+				keyboardType="number-pad"
+				onChangeText={(text) =>
+					form.setFieldValue("amount", text ? Number.parseFloat(text) : 0) // Boş inputta 0 atanıyor
+				}
+				cursorColor={theme.colors.primary}
+			/>
+			<Text variant="titleSmall" style={{ color: theme.colors.accent, fontWeight: "bold" }}>
 				Balans artımı üçün komissiya yoxdur
 			</Text>
 		</View>
 	);
 }
 
+// BalanceCreate bileşeni: Kullanıcının balans artırmasına olanak tanır.
 export default function BalanceCreate() {
 	const navigation = useNavigation();
 	const theme = useTheme();
@@ -155,6 +142,7 @@ export default function BalanceCreate() {
 	const [loading, setLoading] = useState(false);
 	const [file, setFile] = useState(false);
 
+	// Formik form yöneticisi
 	const formik = useFormik({
 		initialValues: {
 			paymentType: "Bank Kartına köçürmə",
@@ -165,31 +153,25 @@ export default function BalanceCreate() {
 			setLoading(true);
 			try {
 				const formData = new FormData();
-
 				formData.append("paymentType", values.paymentType);
 				formData.append("amount", values.amount);
 
-				console.log(file);
-
+				// Eğer dosya varsa, formdata'ya eklenir.
 				if (file) {
-					console.log("girdi");
-					const formFile = {
+					formData.append("file", {
 						uri: file.uri,
 						type: file.mimeType,
 						name: file.name,
-					};
-
-					formData.append("file", formFile);
+					});
 				}
 
+				// API'ye istek gönderiliyor
 				await api.post("/profile/pay/balance", formData, {
-					headers: {
-						"Content-Type": "multipart/form-data",
-					},
+					headers: { "Content-Type": "multipart/form-data" },
 				});
-				await fetchUser();
-				navigation.navigate("ProfileList");
-				setPage(page + 1);
+				await fetchUser(); // Kullanıcı verisi güncelleniyor.
+				navigation.navigate("ProfileList"); // ProfileList sayfasına yönlendirme.
+				setPage(page + 1); // Sayfa sayısını günceller.
 			} catch (err) {
 				console.error(err.response?.data);
 			}
@@ -197,55 +179,34 @@ export default function BalanceCreate() {
 		},
 	});
 
+	// Ödeme yöntemleri listesi
 	const providers = [
-		{
-			name: "Bank Kartına köçürmə",
-			card: "0595 5432 2423 1234",
-		},
-		{
-			name: "M10",
-			card: "+994 55 515 82 83",
-		},
-		{
-			name: "MPay",
-			card: "4525 5332 2483 2235",
-		},
+		{ name: "Bank Kartına köçürmə", card: "0595 5432 2423 1234" },
+		{ name: "M10", card: "+994 55 515 82 83" },
+		{ name: "MPay", card: "+994 55 515 82 83" },
 	];
 
 	const selected = formik.values.paymentType;
 
+	// Kart numarasını panoya kopyalar.
 	const copyToClipboard = async (provider) => {
 		await Clipboard.setStringAsync(provider.card);
 	};
 
+	// Seçili ödeme yöntemini günceller.
 	const handleSelect = (provider) => {
 		formik.setFieldValue("paymentType", provider.name);
 	};
-
-	// const renderBalanceError = useCallback(() => {
-	//   if(formik.values.amount > user.currentBalance ) return (
-	//     <Text style={{padding: 20, borderRadius: 16, backgroundColor: theme.colors.accent}}>Balansda kifayət qədər məbləğ yoxdur</Text>
-	//   )
-
-	// }, [formik.values.amount, user?.currentBalance])
 
 	return (
 		<View style={styles.container}>
 			<View style={styles.actionContainer}>
 				<View style={styles.display}>
-					<View
-						style={{ flexDirection: "row", justifyContent: "space-between" }}
-					>
-						<Text
-							variant="titleLarge"
-							style={{ fontWeight: "bold", color: theme.colors.primary }}
-						>
+					<View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+						<Text variant="titleLarge" style={{ fontWeight: "bold", color: theme.colors.primary }}>
 							Balans artır
 						</Text>
-						<Text
-							variant="titleMedium"
-							style={{ color: theme.colors.description }}
-						>
+						<Text variant="titleMedium" style={{ color: theme.colors.description }}>
 							Mövcud balans: {user.currentBalance}₼
 						</Text>
 					</View>
@@ -268,18 +229,19 @@ export default function BalanceCreate() {
 				</ScrollView>
 
 				<Button
-					loading={loading}
-					mode="contained"
-					disabled={(formik.values.amount > user.currentBalance) ||  formik.values.amount === 0 || formik.values.amount === null}
-					onPress={formik.handleSubmit}
-				>
-					Təsdiqlə
-				</Button>
+	loading={loading}
+	mode="contained"
+	disabled={formik.values.amount <= 0} // Mevcut bakiye kontrolü kaldırıldı
+	onPress={formik.handleSubmit}
+>
+	Təsdiqlə
+</Button>
 			</View>
 		</View>
 	);
 }
 
+// Stil tanımları
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
